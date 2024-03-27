@@ -22,6 +22,8 @@
 
     #define TWI0_BAUD F_CPU/(2*100000)
 
+    #define TWI_CLIENT_ADDRESS 58
+
     #define TWI_IS_CLOCKHELD() TWI0.MSTATUS & TWI_CLKHOLD_bm
     #define TWI_IS_BUSERR() TWI0.MSTATUS & TWI_BUSERR_bm
     #define TWI_IS_ARBLOST() TWI0.MSTATUS & TWI_ARBLOST_bm
@@ -29,10 +31,15 @@
     // Waiting macro for ensuring that bus is OK before proceeding .
     #define TWI_WAIT() while (!((TWI_IS_CLOCKHELD () ) || ( TWI_IS_BUSERR () ) || (TWI_IS_ARBLOST() ) || ( TWI_IS_BUSBUSY() ) ) )
 
-    typedef struct Fan_struct //Typedef for TWI register bank
+    /* Misc. plans:
+     * 
+     */
+
+    typedef struct Fan_struct //Typedef for TWI register bank. REMEMBER OFFSETOF()!!!!!!!
     {
         uint8_t curr_temp;
         uint8_t curr_fan_speed;
+        uint8_t ctrl_a;
         uint8_t fan_log[200];
     } Fan_monitor_registers_t;
 
