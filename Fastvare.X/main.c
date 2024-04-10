@@ -1,6 +1,6 @@
 /* 
  * File:   main.c
- * Author: steinar
+ * Author: Henrik
  *
  * Created on 12 March 2024, 14:06
  */
@@ -22,13 +22,15 @@ void USART3_init(void);
 static int USART3_printChar(char c, FILE *stream);
 void adc_init(void);
 
-#define USART3_BAUD_RATE(BAUD_RATE)((float)(F_CPU * 64 / (16 *(float)BAUD_RATE)) + 0.5)	//lager baudraten. 
-static FILE USART_stream = FDEV_SETUP_STREAM(USART3_printChar, NULL, _FDEV_SETUP_WRITE);
+#define USART3_BAUD_RATE(BAUD_RATE)((float)(F_CPU * 64 / (16 *(float)BAUD_RATE)) + 0.5)	//lager baudraten til UART overføring 
+static FILE USART_stream = FDEV_SETUP_STREAM(USART3_printChar, NULL, _FDEV_SETUP_WRITE); 
 
 
+
+//--------------------------Temperature Reading functions---------------------------
 // Initialize ADC
 void adc_init(void) {
-    //we will use PD7 fro analog input for thermistor
+    //we will use PD7 from analog input for the thermistor
     
     VREF.ADC0REF = VREF_REFSEL_VDD_gc;  // Select reference voltage (Vref) to be AVCC step 1
     
@@ -38,21 +40,45 @@ void adc_init(void) {
     ADC0.CTRLA |= ADC_ENABLE_bm;     //enables ADC step 11
 }
 
+// Reads the analog voltage and returns it as uint
 uint16_t adc_read() {
     // Start conversion
     ADC0.COMMAND = ADC_STCONV_bm;
 
-    // Wait for conversion to complete
-    while (!(ADC0.INTFLAGS & ADC_RESRDY_bm));
+    // Wait for conversion to complete by checking a interups flag that 
+    while (!(ADC0.INTFLAGS & ADC_RESRDY_bm)) { ; };
 
+    ADC0.INTFLAGS = ADC_RESRDY_bm;    
     // Return the ADC result
-    return ADC0.RES;
+    return ADC0.RES;    //this clears the ADC0.INTFLAG also 
 }
 
 
+float find_temp(uint16_t adcVal){
+	//kode Srevet av Henrik For ooving 3 oppgave 2b
+	const float R0 = 10000.0;	//10k ohm resistor constant
+	const float B = 3950.0;		//B verdien til thermistoren min. funnet i databladet dens.
+	const float T0 = 298.15;			//romtemp i kelvin, deffinert ut ifra databblad til thermistoren
+	const float K0 = 273.15; //0 grader kelvin
+	float meas_volt;
+	float meas_resistance;		//definerer målt motstand fra ADC
+	const float vcc = 3.3;	//vcc spenning VTG (Voltage target) som er den internt genererte
+	float temp;	//definerer utregnet temperatur
+	meas_volt = adcVal*(vcc/4095);	//regner ut spenningen ved å dele på antall sample punkt i 12-bit ADC
+	meas_resistance = R0/((vcc/meas_volt)-1);	//regner ut motstanden 
+	
+	temp = 1/((1/T0)+(1/B)*log(meas_resistance/R0))-K0;	//utregning av temperatur etter Steinhart-Hart formelen. 
+	return temp;	
+}
 
-//---------------------USART functions------------------------ taken from UART ooving
-void USART3_init(void)	//Setup funksjonen 
+// uint16_t internal_voltage_calculation(uint16_t){}
+
+//-----------------------End temperature reading functions-----------------------------
+
+
+//---------------------USART functions------------------------
+//These functions are the same we used in the UART ooving in the course
+void USART3_init(void)	//Setup function
 {
  PORTB.DIR &= ~PIN1_bm;	//endret til port B fra C. Setter innput
  PORTB.DIR |= PIN0_bm;	//endret til port B fra C. Setter output 
@@ -83,6 +109,7 @@ static int USART3_printChar(char c, FILE *stream)
 
 
 
+
 int main(void)
 {
 	// en "1" i registeret betyr innput
@@ -98,13 +125,17 @@ int main(void)
     
     
     
-    
     stdout = &USART_stream;
 	while (1) 
     {	
+        _delay_ms(1000);
         adcVal = adc_read();
-        printf("\n%s %u", "ADC value: ", adcVal);   //"new line type(string) type(unsigned integer)", "ADC value: ", adc value
-        
+        float temp_celcius = find_temp(adcVal);
+        printf("\n %s %u", "ADC value: ", adcVal);   //"new line type(string) type(unsigned integer)", "ADC value: ", adc value
+        char tempStr[10];
+        dtostrf(temp_celcius, 6, 2, tempStr); // Converts the value to string with 2 decimal places
+        printf("\n %s", "Temperature in degrees C: ", tempStr);  //
+        printf("\n %s %f", "Temperature in degrees C: ", temp_celcius); //"new line type(string) type(float)", temperature
         
 		buttonState = (PORTB.IN & PIN2_bm);
         
