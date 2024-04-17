@@ -41,7 +41,10 @@ ISR(TWI0_TWIS_vect)
 
 inline void handle_read() //Transfer data to host
 {
-    
+    //TODO: if pointer is at the second byte of the fan log pointer, dereference that pointer instead.
+    TWI0.SDATA = Fan_reg[Fan_reg_pointer];
+    ++Fan_reg_pointer;
+
 }
 
 inline void handle_write() //Transfer data from host
@@ -49,8 +52,23 @@ inline void handle_write() //Transfer data from host
     if(!pointer_is_set)
     {
         Fan_reg_pointer = TWI0.SDATA;
+        pointer_is_set = 1;
     }
-    Fan_reg[2] = 2;
+    else
+    {
+        Fan_reg[Fan_reg_pointer] = TWI0.SDATA; //Send the byte pointed to by Fan_reg_pointer.
+    }
+    
+    if(Fan_reg_pointer == 255) //If the pointer is about to overflow:
+    {
+        TWI0.SCTRLB = TWI_ACKACT_NACK_gc | TWI_SCMD_RESPONSE_gc;
+    }
+    else
+    {
+        TWI0.SCTRLB = TWI_ACKACT_NACK_gc | TWI_SCMD_RESPONSE_gc;
+    }
+    ++Fan_reg_pointer;
+
 }
 
 

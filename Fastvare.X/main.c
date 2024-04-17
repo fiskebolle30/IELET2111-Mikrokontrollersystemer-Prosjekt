@@ -13,9 +13,10 @@
 int main()
 {
     TWI0_client_init();
+    PORTC.DIR = 0xFF; //Setup debug LEDs
     while(1)
     {
-        
+        PORTC.OUT = Fan_reg.debug_LEDs;
     }
 }
 
