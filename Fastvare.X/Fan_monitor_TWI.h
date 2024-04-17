@@ -23,7 +23,7 @@
 
 #define TWI0_BAUD F_CPU/(2*100000)
 
-#define TWI_CLIENT_ADDRESS 58
+#define FAN_TWI_CLIENT_ADDRESS 58
 
 #define TWI_IS_CLOCKHELD() TWI0.MSTATUS & TWI_CLKHOLD_bm
 #define TWI_IS_BUSERR() TWI0.MSTATUS & TWI_BUSERR_bm
@@ -49,11 +49,13 @@
  * NACK();
  */
 
-typedef struct Fan_struct //Typedef for TWI register bank.
+typedef struct //Typedef for TWI register bank.
 {
     uint8_t curr_temp;
     uint8_t curr_fan_speed;
     uint8_t ctrl_a;
+    uint8_t logging_period_H; //High byte of how frequently to add values to the fan log.
+    uint8_t logging_period_L; //Low byte
     uint8_t fan_log[20000];
 } Fan_monitor_registers_t;
 
