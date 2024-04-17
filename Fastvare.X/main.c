@@ -22,6 +22,7 @@ void USART3_init(void);
 static int USART3_printChar(char c, FILE *stream);
 void adc_init(void);
 
+
 #define USART3_BAUD_RATE(BAUD_RATE)((float)(F_CPU * 64 / (16 *(float)BAUD_RATE)) + 0.5)	//lager baudraten til UART overføring 
 static FILE USART_stream = FDEV_SETUP_STREAM(USART3_printChar, NULL, _FDEV_SETUP_WRITE); 
 
@@ -31,17 +32,26 @@ static FILE USART_stream = FDEV_SETUP_STREAM(USART3_printChar, NULL, _FDEV_SETUP
 // Initialize ADC
 void adc_init(void) {
     //we will use PD7 from analog input for the thermistor
+    //as default set to measure internal voltage
     
-    VREF.ADC0REF = VREF_REFSEL_VDD_gc;  // Select reference voltage (Vref) to be AVCC step 1
+    VREF.ADC0REF = VREF_REFSEL_1V024_gc;  // Select reference voltage (Vref) to be Analog VCC step 1
     
-    ADC0.CTRLA |= ADC_RESSEL_12BIT_gc;   //Resolution selection bit 0 mask.  Step 3
-    ADC0.CTRLC = ADC_PRESC_DIV2_gc; // Adjust prescaler as needed for your clock frequency  step 7 
-    ADC0.MUXPOS = ADC_MUXPOS_AIN7_gc;  // Select ADC input channel, here we use ADC7 which corresponds to PD7 on the curiosity nano. step 8
+    ADC0.CTRLA |= ADC_RESSEL_12BIT_gc;   //Resolution selection. we chose 12 bit meaning 0-4095 
+    ADC0.CTRLC = ADC_PRESC_DIV2_gc; // Adjust prescaler as needed for the clock frequency 
+    ADC0.MUXPOS = ADC_MUXPOS_VDDDIV10_gc;  // Select ADC input channel, here we use VDDDIV10 as standard which is the internal VDD divided by 10
     ADC0.CTRLA |= ADC_ENABLE_bm;     //enables ADC step 11
 }
 
 // Reads the analog voltage and returns it as uint
-uint16_t adc_read() {
+uint16_t adc_thermistor_read() {
+    
+    //select reference voltage
+    VREF.ADC0REF = VREF_REFSEL_VDD_gc;  // Select reference voltage (Vref) to be VDD.
+    
+    //select multiplexer port
+    ADC0.MUXPOS = ADC_MUXPOS_AIN7_gc;  // Select ADC input channel, here we use AIN7 which corresponds to PD7 on the curiosity nano.
+   
+    _delay_ms(1);   //needed delay to wait for change in VREF
     // Start conversion
     ADC0.COMMAND = ADC_STCONV_bm;
 
@@ -50,10 +60,11 @@ uint16_t adc_read() {
 
     ADC0.INTFLAGS = ADC_RESRDY_bm;    
     // Return the ADC result
+    
     return ADC0.RES;    //this clears the ADC0.INTFLAG also 
 }
 
-
+    
 float find_temp(uint16_t adcVal){
 	//kode Srevet av Henrik For ooving 3 oppgave 2b
 	const float R0 = 10000.0;	//10k ohm resistor constant
@@ -71,10 +82,46 @@ float find_temp(uint16_t adcVal){
 	return temp;	
 }
 
-// uint16_t internal_voltage_calculation(uint16_t){}
-
 //-----------------------End temperature reading functions-----------------------------
+//-----------------------Start Internal voltage reading functions----------------------
 
+uint16_t adc_internal_read(){
+    
+    
+    //change voltage reference
+     VREF.ADC0REF = VREF_REFSEL_1V024_gc;  // Select reference voltage (Vref) to be a set internal voltage reference of 1,024 volts
+    
+    //change multiplexer selector
+    ADC0.MUXPOS = ADC_MUXPOS_VDDDIV10_gc;  // Select ADC input channel, here VDDDiV10 which means the internal VDD divided by 10.
+
+    _delay_ms(1);   //needed delay to wait for change in VREF
+    // Start conversion
+    ADC0.COMMAND = ADC_STCONV_bm;
+
+    // Wait for conversion to complete by checking a interupts flag that 
+    while (!(ADC0.INTFLAGS & ADC_RESRDY_bm)) { ; };
+
+    ADC0.INTFLAGS = ADC_RESRDY_bm;    
+    // Return the ADC result
+    
+    return ADC0.RES;    //this clears the ADC0.INTFLAG also 
+}
+
+
+float internal_voltage_calculation(uint16_t adcVal){
+    float vRef = 1.024;
+    uint16_t samples = 4095;
+
+    float vMeas = 10*(vRef*adcVal)/samples;
+    return vMeas;
+}
+//muxpos til å velge en annen IO pin. 
+    
+    
+    
+
+
+// ----------------------End Internal voltage reading functions------------------------------
 
 //---------------------USART functions------------------------
 //These functions are the same we used in the UART ooving in the course
@@ -129,16 +176,25 @@ int main(void)
 	while (1) 
     {	
         _delay_ms(1000);
-        adcVal = adc_read();
-        float temp_celcius = find_temp(adcVal);
-        printf("\n %s %u", "ADC value: ", adcVal);   //"new line type(string) type(unsigned integer)", "ADC value: ", adc value
+        uint16_t adcValThermistor = adc_thermistor_read();
+        printf("\n %s %u", "Thermistor ADC value: ", adcValThermistor);   //"new line type(string) type(unsigned integer)", "ADC value: ", adc value
+        float temp_celcius = find_temp(adcValThermistor);
         char tempStr[10];
-        dtostrf(temp_celcius, 6, 2, tempStr); // Converts the value to string with 2 decimal places
-        printf("\n %s", "Temperature in degrees C: ", tempStr);  //
-        printf("\n %s %f", "Temperature in degrees C: ", temp_celcius); //"new line type(string) type(float)", temperature
+        dtostrf(temp_celcius, 6, 3, tempStr); // Converts the value to string with 3 decimal places
+        printf("\n %s %s", "Temperature in degrees C1: ", tempStr);  //
+        printf("\n %s %f", "Temperature in degrees C2: ", temp_celcius);   
+            
+        
+        uint16_t adcValInternal = adc_internal_read();
+        printf("\n %s %u", "Internal voltage ADC value: ", adcValInternal); 
+        float intVDD = internal_voltage_calculation(adcValInternal);
+        char intStr[10];
+        dtostrf(intVDD, 6, 3, intStr); // Converts the value to string with 3 decimal places
+        printf("\n %s %s", "Internal voltage: ", intStr);
+        
+        
         
 		buttonState = (PORTB.IN & PIN2_bm);
-        
 		//kjører en bitvis AND med PIN2 bitmasken som er 0 for alle verdier utenom bit nummer 2 (inngangen fra knappen) Da får vi kun med inngangen vi vil ha.
 		//denne masken ANDes med inngangsregisterer.
 		PORTB.OUT = (buttonState << 1);
