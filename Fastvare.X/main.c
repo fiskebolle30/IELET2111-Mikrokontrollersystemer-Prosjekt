@@ -16,7 +16,7 @@ int main()
     PORTC.DIR = 0xFF; //Setup debug LEDs
     while(1)
     {
-        PORTC.OUT = Fan_reg.debug_LEDs;
+        PORTC.OUT = Fan_reg[DEBUG_LEDS];
     }
 }
 

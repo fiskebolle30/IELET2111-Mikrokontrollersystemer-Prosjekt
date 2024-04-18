@@ -1,6 +1,6 @@
 #include "Fan_monitor_TWI.h"
 
-uint8_t Fan_reg_pointer; //Pointer-ish for the fan struct.
+uint8_t Fan_reg_pointer; //Pointer-ish (really offset) for the fan register array.
 
 void TWI0_client_init ( void )
 {
@@ -15,6 +15,38 @@ void TWI0_client_init ( void )
 }
 
 uint8_t pointer_is_set;
+
+inline void handle_read() //Transfer data to host
+{
+    //TODO: if pointer is at the second byte of the fan log pointer, dereference that pointer instead.
+    TWI0.SDATA = Fan_reg[Fan_reg_pointer];
+    ++Fan_reg_pointer;
+
+}
+
+inline void handle_write() //Transfer data from host
+{
+    if(!pointer_is_set)
+    {
+        Fan_reg_pointer = TWI0.SDATA;
+        pointer_is_set = 1;
+    }
+    else
+    {
+        Fan_reg[Fan_reg_pointer] = TWI0.SDATA; //Send the byte pointed to by Fan_reg_pointer.
+    }
+    
+    if(Fan_reg_pointer >= FAN_REG_LENGTH) //If the pointer is about to overflow:
+    {
+        TWI0.SCTRLB = TWI_ACKACT_NACK_gc | TWI_SCMD_RESPONSE_gc;
+    }
+    else
+    {
+        TWI0.SCTRLB = TWI_ACKACT_NACK_gc | TWI_SCMD_RESPONSE_gc;
+    }
+    ++Fan_reg_pointer;
+
+}
 
 ISR(TWI0_TWIS_vect)
 {
@@ -37,38 +69,6 @@ ISR(TWI0_TWIS_vect)
             handle_write();
         }
     }
-}
-
-inline void handle_read() //Transfer data to host
-{
-    //TODO: if pointer is at the second byte of the fan log pointer, dereference that pointer instead.
-    TWI0.SDATA = Fan_reg[Fan_reg_pointer];
-    ++Fan_reg_pointer;
-
-}
-
-inline void handle_write() //Transfer data from host
-{
-    if(!pointer_is_set)
-    {
-        Fan_reg_pointer = TWI0.SDATA;
-        pointer_is_set = 1;
-    }
-    else
-    {
-        Fan_reg[Fan_reg_pointer] = TWI0.SDATA; //Send the byte pointed to by Fan_reg_pointer.
-    }
-    
-    if(Fan_reg_pointer == 255) //If the pointer is about to overflow:
-    {
-        TWI0.SCTRLB = TWI_ACKACT_NACK_gc | TWI_SCMD_RESPONSE_gc;
-    }
-    else
-    {
-        TWI0.SCTRLB = TWI_ACKACT_NACK_gc | TWI_SCMD_RESPONSE_gc;
-    }
-    ++Fan_reg_pointer;
-
 }
 
 
