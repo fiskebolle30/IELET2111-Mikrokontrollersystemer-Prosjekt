@@ -34,7 +34,7 @@ void adc_init(void) {
     //we will use PD7 from analog input for the thermistor
     //as default set to measure internal voltage
     
-    VREF.ADC0REF = VREF_REFSEL_1V024_gc;  // Select reference voltage (Vref) to be Analog VCC step 1
+    VREF.ADC0REF = VREF_REFSEL_2V048_gc;  // Select reference voltage (Vref) to be Analog VCC. Has to be done to initialize
     
     ADC0.CTRLA |= ADC_RESSEL_12BIT_gc;   //Resolution selection. we chose 12 bit meaning 0-4095 
     ADC0.CTRLC = ADC_PRESC_DIV2_gc; // Adjust prescaler as needed for the clock frequency 
@@ -83,13 +83,14 @@ float find_temp(uint16_t adcVal){
 }
 
 //-----------------------End temperature reading functions-----------------------------
-//-----------------------Start Internal voltage reading functions----------------------
+
+//-----------------------Start voltage reading functions----------------------
 
 uint16_t adc_internal_read(){
     
     
     //change voltage reference
-     VREF.ADC0REF = VREF_REFSEL_1V024_gc;  // Select reference voltage (Vref) to be a set internal voltage reference of 1,024 volts
+     VREF.ADC0REF = VREF_REFSEL_2V048_gc;  // Select reference voltage (Vref) to be a set internal voltage reference of 2.048 volts
     
     //change multiplexer selector
     ADC0.MUXPOS = ADC_MUXPOS_VDDDIV10_gc;  // Select ADC input channel, here VDDDiV10 which means the internal VDD divided by 10.
@@ -98,7 +99,27 @@ uint16_t adc_internal_read(){
     // Start conversion
     ADC0.COMMAND = ADC_STCONV_bm;
 
-    // Wait for conversion to complete by checking a interupts flag that 
+    // Wait for conversion to complete by checking a interupts flag
+    while (!(ADC0.INTFLAGS & ADC_RESRDY_bm)) { ; };
+
+    ADC0.INTFLAGS = ADC_RESRDY_bm;    
+    // Return the ADC result
+    
+    return ADC0.RES;    //this clears the ADC0.INTFLAG also 
+}
+
+uint16_t adc_external_read(){
+    //change voltage reference
+     VREF.ADC0REF = VREF_REFSEL_2V048_gc;  // Select reference voltage (Vref) to be a set internal voltage reference of 2.048 volts
+    
+    //change multiplexer selector
+    ADC0.MUXPOS = ADC_MUXPOS_AIN4_gc; // Select ADC input channel equal to PD 4. 
+
+    _delay_ms(1);   //needed delay to wait for change in VREF
+    // Start conversion
+    ADC0.COMMAND = ADC_STCONV_bm;
+
+    // Wait for conversion to complete by checking a interupts flag
     while (!(ADC0.INTFLAGS & ADC_RESRDY_bm)) { ; };
 
     ADC0.INTFLAGS = ADC_RESRDY_bm;    
@@ -108,20 +129,30 @@ uint16_t adc_internal_read(){
 }
 
 
+    
 float internal_voltage_calculation(uint16_t adcVal){
-    float vRef = 1.024;
+    float vRef = 2.048;
     uint16_t samples = 4095;
 
     float vMeas = 10*(vRef*adcVal)/samples;
     return vMeas;
 }
+
+
+float External_voltage_calculations(uint16_t adcVal){
+    float vRef = 2.048;
+    uint16_t samples = 4095;
+
+    float vMeas = 10*(vRef*adcVal)/samples;
+    return vMeas;
+
+}
 //muxpos til å velge en annen IO pin. 
     
-    
-    
+   
+// ----------------------End voltage reading functions------------------------------
 
 
-// ----------------------End Internal voltage reading functions------------------------------
 
 //---------------------USART functions------------------------
 //These functions are the same we used in the UART ooving in the course
@@ -176,6 +207,9 @@ int main(void)
 	while (1) 
     {	
         _delay_ms(1000);
+        
+        printf("\n");
+        
         uint16_t adcValThermistor = adc_thermistor_read();
         printf("\n %s %u", "Thermistor ADC value: ", adcValThermistor);   //"new line type(string) type(unsigned integer)", "ADC value: ", adc value
         float temp_celcius = find_temp(adcValThermistor);
@@ -191,6 +225,15 @@ int main(void)
         char intStr[10];
         dtostrf(intVDD, 6, 3, intStr); // Converts the value to string with 3 decimal places
         printf("\n %s %s", "Internal voltage: ", intStr);
+        
+        
+        
+        uint16_t adcValExternal = adc_external_read();
+        printf("\n %s %u", "External voltage ADC value: ", adcValExternal); 
+        float intVDD2 = internal_voltage_calculation(adcValExternal);
+        char intStr2[10];
+        dtostrf(intVDD2, 6, 3, intStr2); // Converts the value to string with 3 decimal places
+        printf("\n %s %s", "External voltage: ", intStr2);
         
         
         
