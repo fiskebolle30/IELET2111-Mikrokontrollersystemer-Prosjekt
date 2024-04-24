@@ -25,13 +25,6 @@
 
 #define FAN_TWI_CLIENT_ADDRESS 58
 
-#define TWI_IS_CLOCKHELD() TWI0.MSTATUS & TWI_CLKHOLD_bm
-#define TWI_IS_BUSERR() TWI0.MSTATUS & TWI_BUSERR_bm
-#define TWI_IS_ARBLOST() TWI0.MSTATUS & TWI_ARBLOST_bm
-#define TWI_IS_BUSBUSY() ((TWI0.MSTATUS & TWI_BUSSTATE_BUSY_gc) == TWI_BUSSTATE_BUSY_gc )
-// Waiting macro for ensuring that bus is OK before proceeding .
-#define TWI_WAIT() while (!((TWI_IS_CLOCKHELD () ) || ( TWI_IS_BUSERR () ) || (TWI_IS_ARBLOST() ) || ( TWI_IS_BUSBUSY() ) ) )
-
 /* Misc. plans:
  * - REMEMBER OFFSETOF()!!!!!!!
  * - NACK if register pointer is set out of bounds
