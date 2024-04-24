@@ -19,20 +19,7 @@
 
 #define FAN_TWI_CLIENT_ADDRESS 58
 
-
-/* Having the register bank as a struct won't work with the way I was going to index it. Rip
-typedef struct //Typedef for TWI register bank.
-{
-    uint8_t curr_temp;
-    uint8_t curr_fan_speed;
-    uint8_t ctrl_a;
-    uint8_t logging_period_H; //High byte of how frequently to add values to the fan log.
-    uint8_t logging_period_L; //Low byte
-    uint8_t debug_LEDs;
-    uint8_t fan_log[20000];
-} Fan_monitor_registers_t; */
-
-#define FAN_REG_LENGTH 20
+#define FAN_REG_LENGTH 7
 
 volatile uint8_t Fan_reg[FAN_REG_LENGTH]; //Register bank
 volatile uint8_t fan_log[2000];
@@ -44,7 +31,7 @@ volatile uint8_t fan_log[2000];
 #define LOGGING_PERIOD_L 4
 #define FAN_LOG_PTR_H 5
 #define FAN_LOG_PTR_L 6
-//Remember to extend FAN_REG_LENGTH!!!!!
+//Remember to extend FAN_REG_LENGTH!!!!! (max value + 1)
 
 void TWI0_client_init (void);
 

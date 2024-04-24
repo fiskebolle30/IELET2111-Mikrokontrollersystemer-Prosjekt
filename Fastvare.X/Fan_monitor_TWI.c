@@ -49,15 +49,16 @@ inline void handle_write() //Transfer data from host
 
 }
 
-ISR(TWI0_TWIS_vect)
+ISR(TWI0_TWIS_vect) //There's only one interrupt for TWI client mode. Using if statements to determine why the interrupt was called.
 {
     if(TWI0.SSTATUS & TWI_APIF_bm) //If this interrupt is for an address match:
     {
-        if(!(TWI0.SSTATUS & TWI_DIR_bm)) //If the data direction is host write:
+        if(!(TWI0.SSTATUS & TWI_DIR_bm)) //And if the data direction is host write:
         {
             pointer_is_set = 0; //Pointer will get set at the first transaction of every host write.
         }
-        TWI0.SCTRLB = TWI_ACKACT_ACK_gc | TWI_SCMD_RESPONSE_gc;
+        
+        TWI0.SCTRLB = TWI_ACKACT_ACK_gc | TWI_SCMD_RESPONSE_gc; //Send ACK on address match.
     }
     
     
@@ -66,9 +67,9 @@ ISR(TWI0_TWIS_vect)
         if(TWI0.SSTATUS & TWI_DIR_bm) //If this is a read operation, data from client to host:
         {
             handle_read();
-            asm("nop");
+            asm("nop"); //for debugging.
         }
-        else //This is a write operation
+        else //This is a write operation:
         {
             handle_write();
         }
