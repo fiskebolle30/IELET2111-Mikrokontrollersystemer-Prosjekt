@@ -11,20 +11,31 @@
 
 //thermistor reading
 
-#define F_CPU  4000000UL
+
+
 #include <util/delay.h>
 #include <avr/io.h>
-#include <stdio.h>  //library neccesary for printf
-//VREF_REFSEL_2V048_gc = (0x01<<0),  /* Internal 2.048V reference */
-uint16_t adcVal;
+#include <stdio.h>  //library neccesary for printf USART function
+
+
 void USART3_sendChar(char c);
 void USART3_init(void);
 static int USART3_printChar(char c, FILE *stream);
 void adc_init(void);
+uint16_t adc_thermistor_read();
+float find_temp(uint16_t adcVal);
+uint16_t adc_internal_read(void);
+uint16_t adc_external_read(void);
+float voltage_calculation(uint16_t adcVal);
 
 
+
+
+#define F_CPU 4000000UL
 #define USART3_BAUD_RATE(BAUD_RATE)((float)(F_CPU * 64 / (16 *(float)BAUD_RATE)) + 0.5)	//lager baudraten til UART overføring 
 static FILE USART_stream = FDEV_SETUP_STREAM(USART3_printChar, NULL, _FDEV_SETUP_WRITE); 
+#define Voltage_ref_sel 2.048f //internal 2,048 volt reference for ADC. "f" for float
+
 
 
 
@@ -43,7 +54,7 @@ void adc_init(void) {
 }
 
 // Reads the analog voltage and returns it as uint
-uint16_t adc_thermistor_read() {
+uint16_t adc_thermistor_read(void) {
     
     //select reference voltage
     VREF.ADC0REF = VREF_REFSEL_VDD_gc;  // Select reference voltage (Vref) to be VDD.
@@ -64,7 +75,7 @@ uint16_t adc_thermistor_read() {
     return ADC0.RES;    //this clears the ADC0.INTFLAG also 
 }
 
-    
+   
 float find_temp(uint16_t adcVal){
 	//kode Srevet av Henrik For ooving 3 oppgave 2b
 	const float R0 = 10000.0;	//10k ohm resistor constant
@@ -86,16 +97,14 @@ float find_temp(uint16_t adcVal){
 
 //-----------------------Start voltage reading functions----------------------
 
-uint16_t adc_internal_read(){
-    
-    
+uint16_t adc_internal_read(void){
     //change voltage reference
-     VREF.ADC0REF = VREF_REFSEL_2V048_gc;  // Select reference voltage (Vref) to be a set internal voltage reference of 2.048 volts
+    VREF.ADC0REF = VREF_REFSEL_2V048_gc;  // Select reference voltage (Vref) to be a set internal voltage reference of 2.048 volts
     
     //change multiplexer selector
     ADC0.MUXPOS = ADC_MUXPOS_VDDDIV10_gc;  // Select ADC input channel, here VDDDiV10 which means the internal VDD divided by 10.
 
-    _delay_ms(1);   //needed delay to wait for change in VREF
+    _delay_us(10);   //needed delay to wait for change in VREF as specified in chapter 39.5.3 of the datasheet
     // Start conversion
     ADC0.COMMAND = ADC_STCONV_bm;
 
@@ -108,14 +117,14 @@ uint16_t adc_internal_read(){
     return ADC0.RES;    //this clears the ADC0.INTFLAG also 
 }
 
-uint16_t adc_external_read(){
+uint16_t adc_external_read(void){
     //change voltage reference
      VREF.ADC0REF = VREF_REFSEL_2V048_gc;  // Select reference voltage (Vref) to be a set internal voltage reference of 2.048 volts
     
     //change multiplexer selector
     ADC0.MUXPOS = ADC_MUXPOS_AIN4_gc; // Select ADC input channel equal to PD 4. 
 
-    _delay_ms(1);   //needed delay to wait for change in VREF
+    _delay_us(10);   //needed delay to wait for change in VREF as specified in chapter 39.5.3 of the datasheet
     // Start conversion
     ADC0.COMMAND = ADC_STCONV_bm;
 
@@ -131,17 +140,11 @@ uint16_t adc_external_read(){
 
     
 float voltage_calculation(uint16_t adcVal){
-    float vRef = 2.048;
-    uint16_t samples = 4095;
-
-    float vMeas = 10*vRef*adcVal/samples; //calculation. divides
+    uint16_t samples = 4095;    //max value of 12-bit ADC
+    float vMeas = 10*Voltage_ref_sel*adcVal/samples; //Divides the measured adc Value by the max number it can be which is the reference voltage.
+    //Multiplied by 10 to account for 10 to one ratio
     return vMeas;
-}
-
-}
-//muxpos til å velge en annen IO pin. 
-    
-   
+}   
 // ----------------------End voltage reading functions------------------------------
 
 
@@ -152,7 +155,6 @@ void USART3_init(void)	//Setup function
 {
  PORTB.DIR &= ~PIN1_bm;	//endret til port B fra C. Setter innput
  PORTB.DIR |= PIN0_bm;	//endret til port B fra C. Setter output 
- PORTB.DIR |= PIN3_bm;	//setter internal LED som output
 
  USART3.BAUD = (uint16_t)USART3_BAUD_RATE(9600);	//Setter en baudrate på 9600 for utgang USART3 (måtte endre fra USART1)
  USART3.CTRLB |= USART_TXEN_bm;	//Enabler Transmit Enable biten i USART Controll B registeret.
@@ -185,15 +187,6 @@ int main(void)
 	// en "1" i registeret betyr innput
 	adc_init();
     USART3_init();
-	PORTB.DIRSET |= PIN3_bm;    //output for LED
-    PORTB.DIRSET &= ~PIN2_bm;    //input for button
-    
-	uint8_t buttonState = 0;	//variabel for knappetilstanden, kunne kanskje vært en binær variabel og.
-	
-	PORTB.PIN2CTRL = PORT_PULLUPEN_bm;
-	//Setter opp den integrerte pullup motstanden til knappen
-    
-    
     
     stdout = &USART_stream;
 	while (1) 
@@ -227,13 +220,15 @@ int main(void)
         dtostrf(intVDD2, 6, 3, intStr2); // Converts the value to string with 3 decimal places
         printf("\n %s %s", "External voltage: ", intStr2);
         
-        
-        
-		buttonState = (PORTB.IN & PIN2_bm);
-		//kjører en bitvis AND med PIN2 bitmasken som er 0 for alle verdier utenom bit nummer 2 (inngangen fra knappen) Da får vi kun med inngangen vi vil ha.
-		//denne masken ANDes med inngangsregisterer.
-		PORTB.OUT = (buttonState << 1);
     }
 }
 
+void Draw_to_terminal(uint16_t adcValue, char Str[]){
+    
+    printf("\n %s", Str, "%s %u", " voltage ADC value: ", adcValue); 
+        float intVDD2 = voltage_calculation(adcValExternal);
+        char intStr2[10];
+        dtostrf(intVDD2, 6, 3, intStr2); // Converts the value to string with 3 decimal places
+        printf("\n %s %s", "External voltage: ", intStr2);
+}
 
