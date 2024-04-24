@@ -130,21 +130,13 @@ uint16_t adc_external_read(){
 
 
     
-float internal_voltage_calculation(uint16_t adcVal){
+float voltage_calculation(uint16_t adcVal){
     float vRef = 2.048;
     uint16_t samples = 4095;
 
-    float vMeas = 10*(vRef*adcVal)/samples;
+    float vMeas = 10*vRef*adcVal/samples; //calculation. divides
     return vMeas;
 }
-
-
-float External_voltage_calculations(uint16_t adcVal){
-    float vRef = 2.048;
-    uint16_t samples = 4095;
-
-    float vMeas = 10*(vRef*adcVal)/samples;
-    return vMeas;
 
 }
 //muxpos til å velge en annen IO pin. 
@@ -221,7 +213,7 @@ int main(void)
         
         uint16_t adcValInternal = adc_internal_read();
         printf("\n %s %u", "Internal voltage ADC value: ", adcValInternal); 
-        float intVDD = internal_voltage_calculation(adcValInternal);
+        float intVDD = voltage_calculation(adcValInternal);
         char intStr[10];
         dtostrf(intVDD, 6, 3, intStr); // Converts the value to string with 3 decimal places
         printf("\n %s %s", "Internal voltage: ", intStr);
@@ -230,7 +222,7 @@ int main(void)
         
         uint16_t adcValExternal = adc_external_read();
         printf("\n %s %u", "External voltage ADC value: ", adcValExternal); 
-        float intVDD2 = internal_voltage_calculation(adcValExternal);
+        float intVDD2 = voltage_calculation(adcValExternal);
         char intStr2[10];
         dtostrf(intVDD2, 6, 3, intStr2); // Converts the value to string with 3 decimal places
         printf("\n %s %s", "External voltage: ", intStr2);
