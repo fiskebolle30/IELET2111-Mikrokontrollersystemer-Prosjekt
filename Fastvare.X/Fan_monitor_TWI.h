@@ -25,22 +25,6 @@
 
 #define FAN_TWI_CLIENT_ADDRESS 58
 
-/* Misc. plans:
- * - REMEMBER OFFSETOF()!!!!!!!
- * - NACK if register pointer is set out of bounds
- * - NACK if register pointer increments out of bounds
- * - pseudocode:
- * if(ptr < offsetof(1st array)) {
- *  struct[ptr] OR MAYBE *(struct + ptr)
- * }
- * else if(ptr within 1st array) {
- *  handle looping array
- * }
- * else if(second array....
- * 
- * //default:
- * NACK();
- */
 
 /* Having the register bank as a struct won't work with the way I was going to index it. Rip
 typedef struct //Typedef for TWI register bank.
@@ -59,12 +43,13 @@ typedef struct //Typedef for TWI register bank.
 volatile uint8_t Fan_reg[FAN_REG_LENGTH]; //Register bank
 volatile uint8_t fan_log[2000];
 
-#define CURR_TEMP 0 //Defines for what the different bytes in Fan_reg are.
+#define CURR_TEMP 0 //Defines for what the different bytes in the Fan_reg array are.
 #define CURR_FAN_SPEED 1
 #define CTRL_A 2
 #define LOGGING_PERIOD_H 3
 #define LOGGING_PERIOD_L 4
-#define DEBUG_LEDS 5
+#define FAN_LOG_PTR_H 5
+#define FAN_LOG_PTR_L 6
 //Remember to extend FAN_REG_LENGTH!!!!!
 
 void TWI0_client_init (void);

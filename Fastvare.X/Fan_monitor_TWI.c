@@ -38,7 +38,7 @@ inline void handle_write() //Transfer data from host
         ++Fan_reg_pointer;
     }
     
-    if(Fan_reg_pointer > FAN_REG_LENGTH) //If the pointer has overflowed:
+    if(Fan_reg_pointer > FAN_REG_LENGTH) //If the pointer has "overflowed":
     {
         TWI0.SCTRLB = TWI_ACKACT_NACK_gc | TWI_SCMD_RESPONSE_gc;
     }
@@ -74,22 +74,3 @@ ISR(TWI0_TWIS_vect)
         }
     }
 }
-
-
-    /* Misc. plans:
-     * - REMEMBER OFFSETOF()!!!!!!! and sizeof().
-     * - NACK if register pointer is set out of bounds
-     * - NACK if register pointer increments out of bounds
-     * - pseudocode:
-     * if(ptr < offsetof(1st array)) {
-     *  struct[ptr] OR MAYBE *(struct + ptr)
-     * }
-     * else if(ptr within 1st array) {
-     *  handle looping array
-     * }
-     * else if(second array....
-     * 
-     * //default:
-     * NACK();
-     */
-
