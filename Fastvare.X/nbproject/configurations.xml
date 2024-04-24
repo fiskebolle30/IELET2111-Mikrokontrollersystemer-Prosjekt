@@ -165,6 +165,9 @@
         <property key="sram-segment" value=""/>
         <property key="v-printf" value="false"/>
       </AVR-LD>
+      <nEdbgTool>
+        <property key="debugoptions.useswbreakpoints" value="true"/>
+      </nEdbgTool>
     </conf>
   </confs>
 </configurationDescriptor>

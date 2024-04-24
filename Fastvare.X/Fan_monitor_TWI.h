@@ -61,7 +61,7 @@ typedef struct //Typedef for TWI register bank.
     uint8_t fan_log[20000];
 } Fan_monitor_registers_t; */
 
-#define FAN_REG_LENGTH 6
+#define FAN_REG_LENGTH 20
 
 volatile uint8_t Fan_reg[FAN_REG_LENGTH]; //Register bank
 volatile uint8_t fan_log[2000];
@@ -72,6 +72,7 @@ volatile uint8_t fan_log[2000];
 #define LOGGING_PERIOD_H 3
 #define LOGGING_PERIOD_L 4
 #define DEBUG_LEDS 5
+//Remember to extend FAN_REG_LENGTH!!!!!
 
 void TWI0_client_init (void);
 

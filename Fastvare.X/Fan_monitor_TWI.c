@@ -10,7 +10,7 @@ void TWI0_client_init ( void )
     PORTA.PINCONFIG = PORT_PULLUPEN_bm ; // Enable pullups, in case the host doesn't.
     PORTA.PINCTRLUPD = PIN2_bm | PIN3_bm ;
     TWI0.SADDR = (FAN_TWI_CLIENT_ADDRESS << 1); //Set client address to 58, and disable General Call Address.
-    TWI0.SCTRLA |= TWI_ENABLE_bm; //enable TWI
+    TWI0.SCTRLA |= TWI_DIEN_bm | TWI_APIEN_bm | TWI_ENABLE_bm; //enable TWI
     sei();
 }
 
@@ -21,6 +21,7 @@ inline void handle_read() //Transfer data to host
     //TODO: if pointer is at the second byte of the fan log pointer, dereference that pointer instead.
     TWI0.SDATA = Fan_reg[Fan_reg_pointer];
     ++Fan_reg_pointer;
+    TWI0.SCTRLB = TWI_ACKACT_ACK_gc | TWI_SCMD_RESPONSE_gc;
 
 }
 
@@ -33,18 +34,18 @@ inline void handle_write() //Transfer data from host
     }
     else
     {
-        Fan_reg[Fan_reg_pointer] = TWI0.SDATA; //Send the byte pointed to by Fan_reg_pointer.
+        Fan_reg[Fan_reg_pointer] = TWI0.SDATA; //Set data to the byte pointed to by Fan_reg_pointer.
+        ++Fan_reg_pointer;
     }
     
-    if(Fan_reg_pointer >= FAN_REG_LENGTH) //If the pointer is about to overflow:
+    if(Fan_reg_pointer > FAN_REG_LENGTH) //If the pointer has overflowed:
     {
         TWI0.SCTRLB = TWI_ACKACT_NACK_gc | TWI_SCMD_RESPONSE_gc;
     }
     else
     {
-        TWI0.SCTRLB = TWI_ACKACT_NACK_gc | TWI_SCMD_RESPONSE_gc;
+        TWI0.SCTRLB = TWI_ACKACT_ACK_gc | TWI_SCMD_RESPONSE_gc;
     }
-    ++Fan_reg_pointer;
 
 }
 
@@ -58,13 +59,16 @@ ISR(TWI0_TWIS_vect)
         }
         TWI0.SCTRLB = TWI_ACKACT_ACK_gc | TWI_SCMD_RESPONSE_gc;
     }
-    if(TWI0.SSTATUS & TWI_DIF_bm)
+    
+    
+    if(TWI0.SSTATUS & TWI_DIF_bm) //If this is a data interrupt:
     {
-        if(TWI0.SSTATUS & TWI_DIR_bm) //Read operation, data from client to host.
+        if(TWI0.SSTATUS & TWI_DIR_bm) //If this is a read operation, data from client to host:
         {
             handle_read();
+            asm("nop");
         }
-        else //Write operation
+        else //This is a write operation
         {
             handle_write();
         }
