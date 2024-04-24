@@ -17,12 +17,6 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 
-#ifndef F_CPU
-    #define F_CPU 4000000UL
-#endif
-
-#define TWI0_BAUD F_CPU/(2*100000)
-
 #define FAN_TWI_CLIENT_ADDRESS 58
 
 
