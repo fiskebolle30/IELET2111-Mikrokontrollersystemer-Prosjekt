@@ -21,7 +21,7 @@
 
 #define FAN_REG_LENGTH 11
 
-volatile uint8_t Fan_reg[FAN_REG_LENGTH]; //Register bank
+volatile uint8_t Fan_reg[FAN_REG_LENGTH]; //Register bank. Volatile since it will be used in interrupts.
 volatile uint8_t fan0_log[1000];
 volatile uint8_t fan1_log[1000];
 

@@ -5,7 +5,7 @@ uint8_t Fan_reg_pointer; //Pointer-ish (really offset) for the fan register arra
 void TWI0_client_init ( void )
 {
     //Load previous settings from EEPROM? No time to implement, load default values instead:
-    Fan_reg[LOGGING_PERIOD_H] = 0x0A;
+    Fan_reg[LOGGING_PERIOD_H] = 0x04;
     Fan_reg[LOGGING_PERIOD_L] = 0x00;
     
     // Pin configuration
