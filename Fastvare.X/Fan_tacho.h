@@ -13,6 +13,7 @@ extern "C" {
 #endif
 
 #include <avr/io.h>
+#include "Fan_monitor_TWI.h" //To import the register bank.
 void tacho_init();
 
 
