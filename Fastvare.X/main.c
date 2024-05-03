@@ -18,6 +18,10 @@
 #include <stdio.h>  //library neccesary for printf USART function
 
 
+//#ifndef F_CPU
+    #define F_CPU 4000000UL
+//#endif
+
 void USART3_sendChar(char c);
 void USART3_init(void);
 static int USART3_printChar(char c, FILE *stream);
@@ -29,14 +33,9 @@ uint16_t adc_external_read(void);
 float voltage_calculation(uint16_t adcVal);
 
 
-
-
-#define F_CPU 4000000UL
 #define USART3_BAUD_RATE(BAUD_RATE)((float)(F_CPU * 64 / (16 *(float)BAUD_RATE)) + 0.5)	//lager baudraten til UART overføring 
 static FILE USART_stream = FDEV_SETUP_STREAM(USART3_printChar, NULL, _FDEV_SETUP_WRITE); 
 #define Voltage_ref_sel 2.048f //internal 2,048 volt reference for ADC. "f" for float
-
-
 
 
 //--------------------------Temperature Reading functions---------------------------
@@ -220,15 +219,17 @@ int main(void)
         dtostrf(intVDD2, 6, 3, intStr2); // Converts the value to string with 3 decimal places
         printf("\n %s %s", "External voltage: ", intStr2);
         
+        
+        
     }
 }
 
 void Draw_to_terminal(uint16_t adcValue, char Str[]){
     
-    printf("\n %s", Str, "%s %u", " voltage ADC value: ", adcValue); 
-        float intVDD2 = voltage_calculation(adcValExternal);
-        char intStr2[10];
-        dtostrf(intVDD2, 6, 3, intStr2); // Converts the value to string with 3 decimal places
-        printf("\n %s %s", "External voltage: ", intStr2);
+    printf("\n %s %s %u", Str, " voltage ADC value: ", adcValue); 
+        float intVDD = voltage_calculation(adcValue);
+        char intStr[10];
+        dtostrf(intVDD, 6, 3, intStr); // Converts the value to string with 3 decimal places
+        printf("\n %s %s %s", Str, "External voltage: ", intStr);
 }
 

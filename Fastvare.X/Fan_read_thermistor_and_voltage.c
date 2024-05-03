@@ -139,3 +139,13 @@ static int USART3_printChar(char c, FILE *stream)
 //----------------------USART functions end--------------------------
 
 
+
+void Draw_to_terminal(uint16_t adcValue, char Str[]){
+    
+    printf("\n %s %s %u", Str, " voltage ADC value: ", adcValue); 
+        float intVDD = voltage_calculation(adcValue);
+        char intStr[10];
+        dtostrf(intVDD, 6, 3, intStr); // Converts the value to string with 3 decimal places
+        printf("\n %s %s %s", Str, "External voltage: ", intStr);
+}
+
