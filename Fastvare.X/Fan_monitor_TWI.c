@@ -22,11 +22,9 @@ uint8_t pointer_is_set;
 
 inline void handle_read() //Transfer data to host
 {
-    //TODO: if pointer is at the second byte of the fan log pointer, dereference that pointer instead.
     TWI0.SDATA = Fan_reg[Fan_reg_pointer];
     ++Fan_reg_pointer;
     TWI0.SCTRLB = TWI_ACKACT_ACK_gc | TWI_SCMD_RESPONSE_gc;
-
 }
 
 inline void handle_write() //Transfer data from host

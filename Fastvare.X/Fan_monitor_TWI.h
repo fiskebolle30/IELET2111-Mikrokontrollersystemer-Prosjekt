@@ -19,13 +19,11 @@
 
 #define FAN_TWI_CLIENT_ADDRESS 58
 
-#define FAN_REG_LENGTH 11
+#define FAN_REG_LENGTH 9
 
 volatile uint8_t Fan_reg[FAN_REG_LENGTH]; //Register bank. Volatile since it will be used in interrupts.
-volatile uint8_t fan0_log[1000];
-volatile uint8_t fan1_log[1000];
 
- /* Defines for what the different bytes in the Fan_reg array represent: */
+/* Defines for what the different bytes in the Fan_reg array represent: */
 
 #define CURR_TEMP 0 
 
@@ -40,9 +38,6 @@ volatile uint8_t fan1_log[1000];
 
 #define LOGGING_PERIOD_H 7 //How often fan speed is written to the log, and how long the fan counter can count per measurement.
 #define LOGGING_PERIOD_L 8
-
-#define FAN_LOG_PTR_H 9
-#define FAN_LOG_PTR_L 10
 //Remember to extend FAN_REG_LENGTH!!!!! (max value + 1)
 
 
