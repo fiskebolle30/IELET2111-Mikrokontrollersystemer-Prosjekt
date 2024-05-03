@@ -1,3 +1,4 @@
+
 #include "Fan_read_thermistor_and_voltage.h"
 
 
@@ -46,11 +47,11 @@ float find_temp(uint16_t adcVal){
 	float meas_volt;
 	float meas_resistance;		//definerer målt motstand fra ADC
 	const float vcc = 3.3;	//vcc spenning VTG (Voltage target) som er den internt genererte
-	float temp;	//definerer utregnet temperatur
+
 	meas_volt = adcVal*(vcc/4095);	//regner ut spenningen ved å dele på antall sample punkt i 12-bit ADC
 	meas_resistance = R0/((vcc/meas_volt)-1);	//regner ut motstanden 
 	
-	temp = 1/((1/T0)+(1/B)*log(meas_resistance/R0))-K0;	//utregning av temperatur etter Steinhart-Hart formelen. 
+	float temp = 1/((1/T0)+(1/B)*log(meas_resistance/R0))-K0;	//utregning av temperatur etter Steinhart-Hart formelen. 
 	return temp;	
 }
 //-----------------------End temperature reading functions-----------------------------
@@ -131,7 +132,7 @@ void USART3_sendChar(char c)	//funksjon for å sende en Karakter
 	USART3.TXDATAL = c;	//når ting ikke sendes karakteren c på Usart TX pinnen.
 }
 
-static int USART3_printChar(char c, FILE *stream)
+int USART3_printChar(char c, FILE *stream)
 {
 	USART3_sendChar(c);
 	return 0;
@@ -146,6 +147,6 @@ void Draw_to_terminal(uint16_t adcValue, char Str[]){
         float intVDD = voltage_calculation(adcValue);
         char intStr[10];
         dtostrf(intVDD, 6, 3, intStr); // Converts the value to string with 3 decimal places
-        printf("\n %s %s %s", Str, "External voltage: ", intStr);
+        printf("\n %s %s %s", Str, "Calculated voltage: ", intStr);
 }
 
