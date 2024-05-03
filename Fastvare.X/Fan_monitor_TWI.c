@@ -71,7 +71,6 @@ ISR(TWI0_TWIS_vect) //There's only one interrupt for TWI client mode. Using if s
         if(TWI0.SSTATUS & TWI_DIR_bm) //If this is a read operation, data from client to host:
         {
             handle_read();
-            asm("nop"); //for debugging.
         }
         else //This is a write operation:
         {

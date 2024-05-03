@@ -30,3 +30,7 @@
 *.exe
 *.zip
 *.pdf
+
+#Lagt til selv:
+*.log
+*.log.inx
