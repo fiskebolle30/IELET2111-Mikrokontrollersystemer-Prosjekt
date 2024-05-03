@@ -26,8 +26,9 @@ uint16_t adc_thermistor_read(void) {
     ADC0.MUXPOS = ADC_MUXPOS_AIN7_gc;  // Select ADC input channel, here we use AIN7 which corresponds to PD7 on the curiosity nano.
    
     _delay_ms(1);   //needed delay to wait for change in VREF
-    // Start conversion
-    ADC0.COMMAND = ADC_STCONV_bm;
+    
+    
+    ADC0.COMMAND = ADC_STCONV_bm;   // Start conversion
 
     // Wait for conversion to complete by checking a interups flag that 
     while (!(ADC0.INTFLAGS & ADC_RESRDY_bm)) { ; };
@@ -39,19 +40,20 @@ uint16_t adc_thermistor_read(void) {
 }
 
 float find_temp(uint16_t adcVal){
-	//kode Srevet av Henrik For ooving 3 oppgave 2b
-	const float R0 = 10000.0;	//10k ohm resistor constant
-	const float B = 3950.0;		//B verdien til thermistoren min. funnet i databladet dens.
-	const float T0 = 298.15;			//romtemp i kelvin, deffinert ut ifra databblad til thermistoren
+	//Function that calculated Thermistor temperature using Steinhart-Hart equation and 
+	const float R0 = 10000.0;	//10k ohm resistor used in voltage divider and thermistor R0 value
+	const float B = 3950.0;		//Thermistor B value from datasheet
+	const float T0 = 298.15;	//25 deg C in kelvin. The value used to define thermistor resistance in datasheet
 	const float K0 = 273.15; //0 grader kelvin
 	float meas_volt;
-	float meas_resistance;		//definerer målt motstand fra ADC
-	const float vcc = 3.3;	//vcc spenning VTG (Voltage target) som er den internt genererte
+	float meas_resistance;		//
+	const float vcc = 3.3;
 
-	meas_volt = adcVal*(vcc/4095);	//regner ut spenningen ved å dele på antall sample punkt i 12-bit ADC
-	meas_resistance = R0/((vcc/meas_volt)-1);	//regner ut motstanden 
+	meas_volt = adcVal*(vcc/4095);	//calculates voltage by dividing by amount of samples with 12-bit ADC
+    
+	meas_resistance = R0/((vcc/meas_volt)-1);	//calculates resistance 
 	
-	float temp = 1/((1/T0)+(1/B)*log(meas_resistance/R0))-K0;	//utregning av temperatur etter Steinhart-Hart formelen. 
+	float temp = 1/((1/T0)+(1/B)*log(meas_resistance/R0))-K0;	//calculated temperature in degrees C using  Steinhart-Hart equation. 
 	return temp;	
 }
 //-----------------------End temperature reading functions-----------------------------
@@ -110,29 +112,29 @@ float voltage_calculation(uint16_t adcVal){
 
 
 //---------------------USART functions------------------------
-//These functions are the same we used in the UART ooving in the course
+//These functions are the same we used in the USART ooving in the course
 void USART3_init(void)	//Setup function
 {
- PORTB.DIR &= ~PIN1_bm;	//endret til port B fra C. Setter innput
- PORTB.DIR |= PIN0_bm;	//endret til port B fra C. Setter output 
+ PORTB.DIR &= ~PIN1_bm;	//Sets input port
+ PORTB.DIR |= PIN0_bm;	//Sets output port
 
- USART3.BAUD = (uint16_t)USART3_BAUD_RATE(9600);	//Setter en baudrate på 9600 for utgang USART3 (måtte endre fra USART1)
- USART3.CTRLB |= USART_TXEN_bm;	//Enabler Transmit Enable biten i USART Controll B registeret.
- USART3.CTRLB |= USART_RXEN_bm;	//enabler Return Enable biten.
+ USART3.BAUD = (uint16_t)USART3_BAUD_RATE(9600);	//Sets baudrate of 9600 for  USART3
+ USART3.CTRLB |= USART_TXEN_bm;	//Enables Transmit Enable bit in USART Control B register.
+ USART3.CTRLB |= USART_RXEN_bm;	//Enables Return Enable bit.
 /* This delay invalidates the initial noise on the TX line, after device reset. */
 _delay_ms(10);
 }
 
-void USART3_sendChar(char c)	//funksjon for å sende en Karakter
+void USART3_sendChar(char c)	//function for sending one character
 {
-	while (!(USART3.STATUS & USART_DREIF_bm))	//While som sjekker om det sendes noe på USART3en
+	while (!(USART3.STATUS & USART_DREIF_bm))	//While that checks if something is sent on USART3
 	{
-		;	//når noe sendes gjør den ingenting
+		;	//when something is being sent, do nothing
 	}
-	USART3.TXDATAL = c;	//når ting ikke sendes karakteren c på Usart TX pinnen.
+	USART3.TXDATAL = c;	//sends character c to TXDATAL in the microcontrollers USART_struct
 }
 
-int USART3_printChar(char c, FILE *stream)
+int USART3_printChar(char c, FILE *stream)  //function for sending several characters
 {
 	USART3_sendChar(c);
 	return 0;

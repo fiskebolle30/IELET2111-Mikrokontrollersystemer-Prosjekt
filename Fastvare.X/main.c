@@ -9,7 +9,6 @@
  * Henrik test branch
  */
 
-//thermistor reading
 
 
 #define F_CPU 4000000UL
@@ -21,7 +20,6 @@
 
 int main(void)
 {
-	// en "1" i registeret betyr innput
 	adc_init();
     USART3_init();
     
@@ -72,7 +70,6 @@ int main(void)
         dtostrf(thermistorTemp, 6, 3, thermistorTempStr); // Converts the value to string with 3 decimal places
         printf("\n %s %s", "Thermistor temperature: ", thermistorTempStr);
       
-        
         
         printf("\n");
         
