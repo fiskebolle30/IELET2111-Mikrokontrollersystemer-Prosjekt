@@ -84,8 +84,3 @@ ISR(TCB1_INT_vect) //Overflow
         TCB1.INTFLAGS = TCB_OVF_bm; //Clear interrupt flag.
     }
 }
-
-ISR(TCA0_INT_vect) //This interrupt will reset the fan counters if TCA0 overflows without sending an event, which can happen when decreasing its period.
-{
-    //TODO
-}
