@@ -46,7 +46,7 @@ tacho_init()
     
     
     
-    /* Setup TCA0 as periodic event on ch.2 to capture and then reset both TCB0 and TCB1: */
+    /* Setup TCA0 to generate a periodic event on ch.2 to capture and then reset both TCB0 and TCB1: */
     
     TCA0.SINGLE.PERBUFH = Fan_reg[LOGGING_PERIOD_H]; //Set the period of counting fan passes. This is also the logging period, since the counter values
     TCA0.SINGLE.PERBUFL = Fan_reg[LOGGING_PERIOD_L]; //are written to the log every time this counter triggers.
