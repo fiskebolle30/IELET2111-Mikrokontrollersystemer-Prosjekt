@@ -114,8 +114,6 @@ ISR(TCB0_INT_vect)
         Fan_reg[CURR_FAN_1_SPEED_L] = TCB1.CCMPL;
         sei();
         check_fan_errors();
-        
-        PORTC.OUT ^= (1 << ERR_DEBUG_bp);
     }
 }
 

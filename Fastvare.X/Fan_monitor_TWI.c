@@ -5,9 +5,9 @@ uint8_t Fan_reg_pointer; //Pointer-ish (really offset) for the fan register arra
 void TWI0_client_init ( void )
 {
     //Load previous settings from EEPROM? No time to implement, load default values instead:
-    Fan_reg[MEASUREMENT_PERIOD_H] = 0x04;
-    Fan_reg[MEASUREMENT_PERIOD_L] = 0x00;
-    Fan_reg[FAN_TIMEOUT] = 20;
+    Fan_reg[MEASUREMENT_PERIOD_H] = 0x04; //T_meas = (this value)*prescaler(1024)/F_CPU(4,000,000).
+    Fan_reg[MEASUREMENT_PERIOD_L] = 0x00; //This default value of 0x0400 gives a period of approx. 0.25 seconds.
+    Fan_reg[FAN_TIMEOUT] = 10; //How many measurement periods of stopped fan before the error triggers. default approx. 2.5s
     
     // Pin configuration
     PORTA.DIRSET = PIN2_bm // SDA
@@ -37,11 +37,22 @@ inline void handle_write() //Transfer data from host
     }
     else
     {
-        if(Fan_reg_pointer == CLEAR_ERROR)
-        {
-            Fan_reg[ERROR_BYTE] &= ~TWI0.SDATA; //Clear the error bits
-        }
+        
         Fan_reg[Fan_reg_pointer] = TWI0.SDATA; //Set data to the byte pointed to by Fan_reg_pointer.
+        switch(Fan_reg_pointer)
+        {
+            case CLEAR_ERROR: { //If writing to CLEAR_ERROR, clear error bits.
+                Fan_reg[ERROR_BYTE] &= ~Fan_reg[CLEAR_ERROR]; //Clear the error bits
+                break;
+            }
+            case MEASUREMENT_PERIOD_L: { //If the host has written to the low and high byte of meas_per, write that value into the buffered period register.
+                cli(); //Clear interrupts before writing 16 bit register, just in case.
+                TCA0.SINGLE.PERBUFH = Fan_reg[MEASUREMENT_PERIOD_H];
+                TCA0.SINGLE.PERBUFL = Fan_reg[MEASUREMENT_PERIOD_L];
+                sei();
+                break;
+            }
+        }
         ++Fan_reg_pointer;
     }
     

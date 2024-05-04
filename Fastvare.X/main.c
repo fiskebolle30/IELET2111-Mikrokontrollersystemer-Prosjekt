@@ -51,7 +51,9 @@ int main(void)
         
         printf("\n");
         
-        PORTC.OUT &= (1 << 7);
+        Fan_reg[CURR_TEMP_H] = (adcValThermistor >> 8) & 0xFF; //Write the high byte of adcValThermistor.
+        Fan_reg[CURR_TEMP_L] = adcValThermistor & 0xFF; //Write low byte.
+        PORTC.OUT &= (1 << 7); //Clear entire error register except for the debug output.
         PORTC.OUT |= Fan_reg[ERROR_BYTE]; //Periodically set error outputs.
         
     }
