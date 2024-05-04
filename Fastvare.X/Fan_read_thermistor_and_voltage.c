@@ -1,5 +1,6 @@
 
 #include "Fan_read_thermistor_and_voltage.h"
+#include "Fan_monitor_TWI.h"
 
 
 //--------------------------Temperature Reading functions---------------------------
@@ -150,3 +151,21 @@ void Draw_to_terminal(uint16_t adcValue, char Str[]){
         printf("\n %s %s %s", Str, "Calculated voltage: ", intStr);
 }
 
+
+uint16_t temp_timeout = 0;  //counter that is used to check the thermistor has been over the set max point.
+
+void check_temperature_error(uint16_t adcThermistorVal)  //Function to check if the temperature is above the set max point.
+{
+
+    if(adcThermistorVal > Fan_reg[TEMP_ALARM_LEVEL]){ //increments the counter by one if above the threshold
+        ++temp_timeout;
+        if(temp_timeout > 10)   //has to be above threshold for a few loops to protect against erroneous measurements. 
+        {
+            Fan_reg[ERROR_BYTE] |= (1 << ERR_TEMP_bp);  //sets the error bit in the error byte register.
+        }
+    }
+    else
+    {
+        temp_timeout = 0;   //resets the counter if erroneous measurement.
+    }       
+}

@@ -34,7 +34,7 @@
 #define ERROR_BYTE 5 //The different errors defined by the bits in the byte are defined below.
 #define CLEAR_ERROR 6 //Writing to this byte will clear the written bits in ERROR_BYTE.
 
-#define TEMP_ALARM_LEVEL 7
+#define TEMP_ALARM_LEVEL 7  //thermistor ADC value that triggers error.
 #define FAN_TIMEOUT 8
 
 #define MEASUREMENT_PERIOD_H 9 //How long the fan counter can count per measurement.

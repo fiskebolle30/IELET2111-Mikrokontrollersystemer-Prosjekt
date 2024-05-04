@@ -33,6 +33,10 @@ uint16_t adc_external_read(void);
 float voltage_calculation(uint16_t adcVal);
 void Draw_to_terminal(uint16_t adcValue, char Str[]);
 
+void check_temperature_error(uint16_t adcThermistorVal);  //Function to check if the temperature is above the set max point.
+
+
+
 #define USART3_BAUD_RATE(BAUD_RATE)((float)(F_CPU * 64 / (16 *(float)BAUD_RATE)) + 0.5)	//lager baudraten til UART overføring 
 static FILE USART_stream = FDEV_SETUP_STREAM(USART3_printChar, NULL, _FDEV_SETUP_WRITE); 
 #define Voltage_ref_sel 2.048f //internal 2,048 volt reference for ADC. "f" for float
