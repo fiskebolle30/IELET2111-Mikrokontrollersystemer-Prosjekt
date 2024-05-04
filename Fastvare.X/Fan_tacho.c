@@ -61,13 +61,37 @@ uint16_t fan1_timeout = 0;
 
 inline void check_fan_errors() //Function to check if the fans are stopped.
 {
+    //Fan 0:
     if((Fan_reg[CURR_FAN_0_SPEED_H] == 0) && (Fan_reg[CURR_FAN_0_SPEED_L] == 0))
     {
-        
+        ++fan0_timeout;
+        if(fan0_timeout > 1000) //If the fan has been idle for that long:
+        {
+            Fan_reg[ERROR_BYTE] |= (1 << ERR_FAN0_bp);
+        }
     }
     else
     {
         fan0_timeout = 0;
+    }
+    
+    //Fan 1:
+    if((Fan_reg[CURR_FAN_0_SPEED_H] == 0) && (Fan_reg[CURR_FAN_0_SPEED_L] == 0))
+    {
+        ++fan1_timeout;
+        if(fan1_timeout > 1000) //If the fan has been idle for that long:
+        {
+            Fan_reg[ERROR_BYTE] |= (1 << ERR_FAN0_bp);
+        }
+    }
+    else
+    {
+        fan1_timeout = 0;
+    }
+    
+    if((Fan_reg[ERROR_BYTE] & ((1 << ERR_FAN0_bp) | (1 << ERR_FAN1_bp))) == ((1 << ERR_FAN0_bp) | (1 << ERR_FAN1_bp))) //If both fans have an error:
+    {
+        Fan_reg[ERROR_BYTE] |= (1 << ERR_BOTH_FANS_bp); //activate both fans error
     }
 }
 

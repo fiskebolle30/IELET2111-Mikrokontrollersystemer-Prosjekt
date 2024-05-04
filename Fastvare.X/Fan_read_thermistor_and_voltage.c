@@ -84,7 +84,7 @@ uint16_t adc_external_read(void){
      VREF.ADC0REF = VREF_REFSEL_2V048_gc;  // Select reference voltage (Vref) to be a set internal voltage reference of 2.048 volts
     
     //change multiplexer selector
-    ADC0.MUXPOS = ADC_MUXPOS_AIN4_gc; // Select ADC input channel equal to PD 4. 
+    ADC0.MUXPOS = ADC_MUXPOS_AIN0_gc; // Select ADC input channel equal to PD 0. 
 
     _delay_us(10);   //needed delay to wait for change in VREF as specified in chapter 39.5.3 of the datasheet
     // Start conversion
