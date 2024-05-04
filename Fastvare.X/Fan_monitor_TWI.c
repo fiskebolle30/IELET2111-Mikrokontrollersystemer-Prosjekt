@@ -7,6 +7,7 @@ void TWI0_client_init ( void )
     //Load previous settings from EEPROM? No time to implement, load default values instead:
     Fan_reg[MEASUREMENT_PERIOD_H] = 0x04;
     Fan_reg[MEASUREMENT_PERIOD_L] = 0x00;
+    Fan_reg[FAN_TIMEOUT] = 20;
     
     // Pin configuration
     PORTA.DIRSET = PIN2_bm // SDA

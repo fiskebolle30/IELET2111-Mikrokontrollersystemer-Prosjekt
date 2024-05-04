@@ -31,18 +31,19 @@
 #define CURR_FAN_1_SPEED_H 3
 #define CURR_FAN_1_SPEED_L 4
 
-#define ERROR_BYTE 5 //The different error bits in the byte are defined below.
+#define ERROR_BYTE 5 //The different errors defined by the bits in the byte are defined below.
 #define CLEAR_ERROR 6 //Writing to this byte will clear the written bits in ERROR_BYTE.
 
 #define TEMP_ALARM_LEVEL 7
+#define FAN_TIMEOUT 8
 
-#define MEASUREMENT_PERIOD_H 8 //How often fan speed is written to the log, and how long the fan counter can count per measurement.
-#define MEASUREMENT_PERIOD_L 9
+#define MEASUREMENT_PERIOD_H 9 //How long the fan counter can count per measurement.
+#define MEASUREMENT_PERIOD_L 10
 //Remember to extend FAN_REG_LENGTH!!!!! (max value + 1)
 
-#define FAN_REG_LENGTH 10
+#define FAN_REG_LENGTH 11
 
-volatile uint8_t Fan_reg[FAN_REG_LENGTH]; //Register bank. Volatile since it will be used in interrupts.
+volatile uint8_t Fan_reg[FAN_REG_LENGTH]; //Register bank, writable and readable by both I2C and this code. Volatile since it will be used in interrupts.
 
 
 /* Error byte bit positions: */
@@ -52,6 +53,7 @@ volatile uint8_t Fan_reg[FAN_REG_LENGTH]; //Register bank. Volatile since it wil
 #define ERR_TEMP_bp 2
 #define ERR_CNT_OVF_bp 3 //Fan counter overflowed
 #define ERR_BOTH_FANS_bp 4 //Both fans stopped
+#define ERR_DEBUG_bp 7 //Just a general debug GPIO
 
 
 void TWI0_client_init (void);

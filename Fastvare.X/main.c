@@ -30,7 +30,7 @@ int main(void)
     stdout = &USART_stream;
 	while (1) 
     {	
-        _delay_ms(1000);
+        _delay_ms(100);
         
         printf("\n");
         
