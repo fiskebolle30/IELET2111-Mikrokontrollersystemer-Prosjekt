@@ -3,6 +3,8 @@
  * Author: steinar
  *
  * Created on 24 April 2024, 14:49
+ * 
+ * Not much in the header file, as most of the tachometer is interrupt driven.
  */
 
 #ifndef FAN_TACHO_H

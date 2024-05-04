@@ -3,6 +3,8 @@
  * Author: steinar
  *
  * Created on 19 March 2024, 14:37
+ * 
+ *  Very application-specific interrupt driven I2C handler for the fan monitor.
  */
 
 #ifndef FAN_MONITOR_TWI_H

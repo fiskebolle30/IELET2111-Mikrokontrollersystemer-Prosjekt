@@ -31,33 +31,6 @@ int main(void)
         
         printf("\n");
         
-        /*
-        uint16_t adcValThermistor = adc_thermistor_read();
-        printf("\n %s %u", "Thermistor ADC value: ", adcValThermistor);   //"new line type(string) type(unsigned integer)", "ADC value: ", adc value
-        float temp_celcius = find_temp(adcValThermistor);
-        char tempStr[10];
-        dtostrf(temp_celcius, 6, 3, tempStr); // Converts the value to string with 3 decimal places
-        printf("\n %s %s", "Temperature in degrees C1: ", tempStr);  //
-        printf("\n %s %f", "Temperature in degrees C2: ", temp_celcius);   
-            
-        
-        uint16_t adcValInternal = adc_internal_read();
-        printf("\n %s %u", "Internal voltage ADC value: ", adcValInternal); 
-        float intVDD = voltage_calculation(adcValInternal);
-        char intStr[10];
-        dtostrf(intVDD, 6, 3, intStr); // Converts the value to string with 3 decimal places
-        printf("\n %s %s", "Internal voltage: ", intStr);
-        
-        
-        
-        uint16_t adcValExternal = adc_external_read();
-        printf("\n %s %u", "External voltage ADC value: ", adcValExternal); 
-        float intVDD2 = voltage_calculation(adcValExternal);
-        char intStr2[10];
-        dtostrf(intVDD2, 6, 3, intStr2); // Converts the value to string with 3 decimal places
-        printf("\n %s %s", "External voltage: ", intStr2);
-        */
-        
         uint16_t adcValInternal = adc_internal_read();
         Draw_to_terminal(adcValInternal, "Internal");
         

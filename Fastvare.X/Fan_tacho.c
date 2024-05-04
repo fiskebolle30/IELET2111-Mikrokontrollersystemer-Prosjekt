@@ -1,6 +1,6 @@
 #include "Fan_tacho.h"
 
-tacho_init()
+void tacho_init()
 //Initialize IR tachometer. Fan blade passes are detected using the analog comparator, counting up on a timer.
 {
     /* Setup analog comparators.*/
