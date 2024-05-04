@@ -24,6 +24,9 @@ int main(void)
     TWI0_client_init();
     tacho_init();
     
+    PORTC.DIR = 0xFF; //Error outputs.
+    PORTC.OUT = 0x00; //No errors at the start.
+    
     stdout = &USART_stream;
 	while (1) 
     {	
@@ -47,6 +50,8 @@ int main(void)
         
         
         printf("\n");
+        
+        PORTC.OUT = Fan_reg[ERROR_BYTE]; //Periodically set error outputs.
         
     }
 }

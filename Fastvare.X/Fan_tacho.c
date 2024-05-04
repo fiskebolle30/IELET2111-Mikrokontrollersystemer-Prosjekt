@@ -48,14 +48,29 @@ void tacho_init()
     
     /* Setup TCA0 to generate a periodic event on ch.2 to capture and then reset both TCB0 and TCB1: */
     
-    TCA0.SINGLE.PERBUFH = Fan_reg[LOGGING_PERIOD_H]; //Set the period of counting fan passes. This is also the logging period, since the counter values
-    TCA0.SINGLE.PERBUFL = Fan_reg[LOGGING_PERIOD_L]; //are written to the log every time this counter triggers.
+    TCA0.SINGLE.PERBUFH = Fan_reg[MEASUREMENT_PERIOD_H]; //Set the period of counting fan passes. 
+    TCA0.SINGLE.PERBUFL = Fan_reg[MEASUREMENT_PERIOD_L];
     
     EVSYS.CHANNEL2 = 0x80; //Route the TCA0 overflow event onto event channel 2. Couldn't find a define, so the magic number from the datasheet is used.
     
     TCA0.SINGLE.CTRLA = TCA_SINGLE_CLKSEL_DIV1024_gc | TCA_SINGLE_ENABLE_bm; //Clock source is clk_per divided by 1024, timer is enabled.
     sei(); //Set global interrupts.
 }
+uint16_t fan0_timeout = 0; //Counters to check if the fans have been stopped over time.
+uint16_t fan1_timeout = 0;
+
+inline void check_fan_errors() //Function to check if the fans are stopped.
+{
+    if((Fan_reg[CURR_FAN_0_SPEED_H] == 0) && (Fan_reg[CURR_FAN_0_SPEED_L] == 0))
+    {
+        
+    }
+    else
+    {
+        fan0_timeout = 0;
+    }
+}
+
 
 ISR(TCB0_INT_vect)
 {
@@ -73,6 +88,7 @@ ISR(TCB0_INT_vect)
         Fan_reg[CURR_FAN_1_SPEED_H] = TCB1.CCMPH;
         Fan_reg[CURR_FAN_1_SPEED_L] = TCB1.CCMPL;
         sei();
+        check_fan_errors();
     }
 }
 

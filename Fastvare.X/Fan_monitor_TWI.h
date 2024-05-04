@@ -21,9 +21,6 @@
 
 #define FAN_TWI_CLIENT_ADDRESS 58
 
-#define FAN_REG_LENGTH 9
-
-volatile uint8_t Fan_reg[FAN_REG_LENGTH]; //Register bank. Volatile since it will be used in interrupts.
 
 /* Defines for what the different bytes in the Fan_reg array represent: */
 
@@ -35,12 +32,17 @@ volatile uint8_t Fan_reg[FAN_REG_LENGTH]; //Register bank. Volatile since it wil
 #define CURR_FAN_1_SPEED_L 4
 
 #define ERROR_BYTE 5 //The different error bits in the byte are defined below.
+#define CLEAR_ERROR 6 //Writing to this byte will clear the written bits in ERROR_BYTE.
 
-#define TEMP_ALARM_LEVEL 6
+#define TEMP_ALARM_LEVEL 7
 
-#define LOGGING_PERIOD_H 7 //How often fan speed is written to the log, and how long the fan counter can count per measurement.
-#define LOGGING_PERIOD_L 8
+#define MEASUREMENT_PERIOD_H 8 //How often fan speed is written to the log, and how long the fan counter can count per measurement.
+#define MEASUREMENT_PERIOD_L 9
 //Remember to extend FAN_REG_LENGTH!!!!! (max value + 1)
+
+#define FAN_REG_LENGTH 10
+
+volatile uint8_t Fan_reg[FAN_REG_LENGTH]; //Register bank. Volatile since it will be used in interrupts.
 
 
 /* Error byte bit positions: */
@@ -49,6 +51,7 @@ volatile uint8_t Fan_reg[FAN_REG_LENGTH]; //Register bank. Volatile since it wil
 #define ERR_FAN1_bp 1
 #define ERR_TEMP_bp 2
 #define ERR_CNT_OVF_bp 3 //Fan counter overflowed
+#define ERR_BOTH_FANS_bp 4 //Both fans stopped
 
 
 void TWI0_client_init (void);

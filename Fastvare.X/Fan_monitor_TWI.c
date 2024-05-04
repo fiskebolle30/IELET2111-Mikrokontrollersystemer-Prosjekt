@@ -5,8 +5,8 @@ uint8_t Fan_reg_pointer; //Pointer-ish (really offset) for the fan register arra
 void TWI0_client_init ( void )
 {
     //Load previous settings from EEPROM? No time to implement, load default values instead:
-    Fan_reg[LOGGING_PERIOD_H] = 0x04;
-    Fan_reg[LOGGING_PERIOD_L] = 0x00;
+    Fan_reg[MEASUREMENT_PERIOD_H] = 0x04;
+    Fan_reg[MEASUREMENT_PERIOD_L] = 0x00;
     
     // Pin configuration
     PORTA.DIRSET = PIN2_bm // SDA
@@ -36,6 +36,10 @@ inline void handle_write() //Transfer data from host
     }
     else
     {
+        if(Fan_reg_pointer == CLEAR_ERROR)
+        {
+            Fan_reg[ERROR_BYTE] &= ~TWI0.SDATA; //Clear the error bits
+        }
         Fan_reg[Fan_reg_pointer] = TWI0.SDATA; //Set data to the byte pointed to by Fan_reg_pointer.
         ++Fan_reg_pointer;
     }
