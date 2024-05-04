@@ -40,7 +40,9 @@ int main(void)
         uint16_t adcValExternal = adc_external_read();
         Draw_to_terminal(adcValExternal, "External");
         
+       
         uint16_t adcValThermistor = adc_thermistor_read();
+        check_temperature_error(adcValThermistor);
         Draw_to_terminal(adcValThermistor, "Thermistor");
         float thermistorTemp = find_temp(adcValThermistor);
         char thermistorTempStr[10];
@@ -49,9 +51,13 @@ int main(void)
       
         
         
+        //sende temp inn i registeret? 
         printf("\n");
         
         PORTC.OUT = Fan_reg[ERROR_BYTE]; //Periodically set error outputs.
+        
+        
+        
         
     }
 }

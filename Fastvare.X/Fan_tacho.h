@@ -17,7 +17,7 @@ extern "C" {
 #include <avr/io.h>
 #include "Fan_monitor_TWI.h" //To import the register bank.
 void tacho_init();
-
+void check_temperature_error();
 
 #ifdef	__cplusplus
 }
