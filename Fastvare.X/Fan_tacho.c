@@ -48,8 +48,9 @@ void tacho_init()
     
     /* Setup TCA0 to generate a periodic event on ch.2 to capture and then reset both TCB0 and TCB1: */
     
-    TCA0.SINGLE.PERBUFH = Fan_reg[MEASUREMENT_PERIOD_H]; //Set the period of counting fan passes. 
-    TCA0.SINGLE.PERBUFL = Fan_reg[MEASUREMENT_PERIOD_L];
+    
+    TCA0.SINGLE.PERH = Fan_reg[MEASUREMENT_PERIOD_H]; //Set the period of counting fan passes. 
+    TCA0.SINGLE.PERL = Fan_reg[MEASUREMENT_PERIOD_L];
     
     EVSYS.CHANNEL2 = 0x80; //Route the TCA0 overflow event onto event channel 2. Couldn't find a define, so the magic number from the datasheet is used.
     
@@ -113,6 +114,8 @@ ISR(TCB0_INT_vect)
         Fan_reg[CURR_FAN_1_SPEED_L] = TCB1.CCMPL;
         sei();
         check_fan_errors();
+        
+        PORTC.OUT ^= (1 << ERR_DEBUG_bp);
     }
 }
 

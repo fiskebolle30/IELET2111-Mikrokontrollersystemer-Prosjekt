@@ -21,7 +21,7 @@ void TWI0_client_init ( void )
 
 uint8_t pointer_is_set;
 
-inline void handle_read() //Transfer data to host
+inline void handle_read() //Transfer data to host. Inline is so the interrupts don't need to push all the working registers to the stack.
 {
     TWI0.SDATA = Fan_reg[Fan_reg_pointer];
     ++Fan_reg_pointer;

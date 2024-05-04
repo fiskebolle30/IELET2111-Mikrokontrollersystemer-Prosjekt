@@ -17,15 +17,15 @@
 
 int main(void)
 {
-	// en "1" i registeret betyr innput
-	adc_init();
-    USART3_init();
-    
     TWI0_client_init();
     tacho_init();
     
     PORTC.DIR = 0xFF; //Error outputs.
     PORTC.OUT = 0x00; //No errors at the start.
+    
+	// en "1" i registeret betyr innput
+	adc_init();
+    USART3_init();
     
     stdout = &USART_stream;
 	while (1) 
@@ -51,7 +51,8 @@ int main(void)
         
         printf("\n");
         
-        PORTC.OUT = Fan_reg[ERROR_BYTE]; //Periodically set error outputs.
+        PORTC.OUT &= (1 << 7);
+        PORTC.OUT |= Fan_reg[ERROR_BYTE]; //Periodically set error outputs.
         
     }
 }
