@@ -37,8 +37,10 @@ int main(void)
         uint16_t adcValInternal = adc_internal_read();
         Draw_to_terminal(adcValInternal, "Internal");
         
+        
         uint16_t adcValExternal = adc_external_read();
         Draw_to_terminal(adcValExternal, "External");
+        
         
         uint16_t adcValThermistor = adc_thermistor_read();
         Draw_to_terminal(adcValThermistor, "Thermistor");

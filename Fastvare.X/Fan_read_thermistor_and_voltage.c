@@ -26,7 +26,7 @@ uint16_t adc_thermistor_read(void) {
     //select multiplexer port
     ADC0.MUXPOS = ADC_MUXPOS_AIN7_gc;  // Select ADC input channel, here we use AIN7 which corresponds to PD7 on the curiosity nano.
    
-    _delay_ms(1);   //needed delay to wait for change in VREF
+    _delay_us(10);   //needed delay to wait for change in VREF
     // Start conversion
     ADC0.COMMAND = ADC_STCONV_bm;
 
@@ -40,22 +40,25 @@ uint16_t adc_thermistor_read(void) {
 }
 
 float find_temp(uint16_t adcVal){
-	//kode Srevet av Henrik For ooving 3 oppgave 2b
-	const float R0 = 10000.0;	//10k ohm resistor constant
-	const float B = 3950.0;		//B verdien til thermistoren min. funnet i databladet dens.
-	const float T0 = 298.15;			//romtemp i kelvin, deffinert ut ifra databblad til thermistoren
-	const float K0 = 273.15; //0 grader kelvin
+	//Function that calculated Thermistor temperature using Steinhart-Hart equation and 
+	const float R0 = 10000.0;	//10k ohm resistor used in voltage divider and thermistor R0 value
+	const float B = 3950.0;		//Thermistor B value from datasheet
+	const float T0 = 298.15;	//25 deg C in kelvin. The value used to define thermistor resistance in datasheet
+	const float K0 = 273.15;    //0 degrees kelvin
 	float meas_volt;
-	float meas_resistance;		//definerer målt motstand fra ADC
-	const float vcc = 3.3;	//vcc spenning VTG (Voltage target) som er den internt genererte
+	float meas_resistance;		
+	const float vcc = 3.3;
 
-	meas_volt = adcVal*(vcc/4095);	//regner ut spenningen ved å dele på antall sample punkt i 12-bit ADC
-	meas_resistance = R0/((vcc/meas_volt)-1);	//regner ut motstanden 
+	meas_volt = adcVal*(vcc/4095);	//calculates voltage by dividing by amount of samples with 12-bit ADC
+    
+	meas_resistance = R0/((vcc/meas_volt)-1);	//calculates resistance 
 	
-	float temp = 1/((1/T0)+(1/B)*log(meas_resistance/R0))-K0;	//utregning av temperatur etter Steinhart-Hart formelen. 
+	float temp = 1/((1/T0)+(1/B)*log(meas_resistance/R0))-K0;	//calculated temperature in degrees C using  Steinhart-Hart equation. 
 	return temp;	
 }
 //-----------------------End temperature reading functions-----------------------------
+
+
 
 
 
@@ -65,19 +68,20 @@ uint16_t adc_internal_read(void){
     VREF.ADC0REF = VREF_REFSEL_2V048_gc;  // Select reference voltage (Vref) to be a set internal voltage reference of 2.048 volts
     
     //change multiplexer selector
-    ADC0.MUXPOS = ADC_MUXPOS_VDDDIV10_gc;  // Select ADC input channel, here VDDDiV10 which means the internal VDD divided by 10.
+    ADC0.MUXPOS = ADC_MUXPOS_VDDDIV10_gc;  // Select ADC input channel, here VDDDIV10 which means the internal VDD divided by 10.
 
     _delay_us(10);   //needed delay to wait for change in VREF as specified in chapter 39.5.3 of the datasheet
+    
     // Start conversion
     ADC0.COMMAND = ADC_STCONV_bm;
 
-    // Wait for conversion to complete by checking a interupts flag
+    // Wait for conversion to complete by checking a interupt flag
     while (!(ADC0.INTFLAGS & ADC_RESRDY_bm)) { ; };
-
-    ADC0.INTFLAGS = ADC_RESRDY_bm;    
-    // Return the ADC result
     
-    return ADC0.RES;    //this clears the ADC0.INTFLAG also 
+    // Return the ADC result
+    ADC0.INTFLAGS = ADC_RESRDY_bm;    
+    
+    return ADC0.RES;    //this also clears the ADC0.INTFLAG
 }
 
 uint16_t adc_external_read(void){
@@ -87,7 +91,8 @@ uint16_t adc_external_read(void){
     //change multiplexer selector
     ADC0.MUXPOS = ADC_MUXPOS_AIN0_gc; // Select ADC input channel equal to PD 0. 
 
-    _delay_us(10);   //needed delay to wait for change in VREF as specified in chapter 39.5.3 of the datasheet
+    _delay_us(10);   //needed delay to wait for change in VREF as specified in chapter 39.5.3 of the AVR128DB48 datasheet
+    
     // Start conversion
     ADC0.COMMAND = ADC_STCONV_bm;
 
@@ -97,7 +102,7 @@ uint16_t adc_external_read(void){
     ADC0.INTFLAGS = ADC_RESRDY_bm;    
     // Return the ADC result
     
-    return ADC0.RES;    //this clears the ADC0.INTFLAG also 
+    return ADC0.RES;    //this also clears the ADC0.INTFLAG
 }
   
 float voltage_calculation(uint16_t adcVal){
@@ -111,34 +116,34 @@ float voltage_calculation(uint16_t adcVal){
 
 
 //---------------------USART functions------------------------
-//These functions are the same we used in the UART ooving in the course
+//These functions are the same we used in the USART ooving in the course
 void USART3_init(void)	//Setup function
 {
- PORTB.DIR &= ~PIN1_bm;	//endret til port B fra C. Setter innput
- PORTB.DIR |= PIN0_bm;	//endret til port B fra C. Setter output 
+ PORTB.DIR &= ~PIN1_bm;	//Sets input USART pin
+ PORTB.DIR |= PIN0_bm;	//Sets output USART pin
 
- USART3.BAUD = (uint16_t)USART3_BAUD_RATE(9600);	//Setter en baudrate på 9600 for utgang USART3 (måtte endre fra USART1)
- USART3.CTRLB |= USART_TXEN_bm;	//Enabler Transmit Enable biten i USART Controll B registeret.
- USART3.CTRLB |= USART_RXEN_bm;	//enabler Return Enable biten.
-/* This delay invalidates the initial noise on the TX line, after device reset. */
-_delay_ms(10);
+ USART3.BAUD = (uint16_t)USART3_BAUD_RATE(9600);	//Sets 9600 baudrate
+ USART3.CTRLB |= USART_TXEN_bm;	 //Enables Transmit bit in USART control B register
+ USART3.CTRLB |= USART_RXEN_bm;	 //Enables Return Enable bit in USART control B register.
+ 
+_delay_ms(10);  //delay for mitigating initial noise on the TX line after device reset
 }
 
-void USART3_sendChar(char c)	//funksjon for å sende en Karakter
+void USART3_sendChar(char c)	//USART function for sending a single character
 {
-	while (!(USART3.STATUS & USART_DREIF_bm))	//While som sjekker om det sendes noe på USART3en
+	while (!(USART3.STATUS & USART_DREIF_bm))	//While loop checks if something is being sent over the USART line
 	{
-		;	//når noe sendes gjør den ingenting
+		;	//If something is being sent, do nothing
 	}
-	USART3.TXDATAL = c;	//når ting ikke sendes karakteren c på Usart TX pinnen.
+	USART3.TXDATAL = c;	//if available, sends character
 }
-
-int USART3_printChar(char c, FILE *stream)
+int USART3_printChar(char c, FILE *stream)  //function for parsing the sendChar function 
 {
 	USART3_sendChar(c);
 	return 0;
 }
 //----------------------USART functions end--------------------------
+
 
 
 
@@ -152,16 +157,16 @@ void Draw_to_terminal(uint16_t adcValue, char Str[]){
 }
 
 
-uint16_t temp_timeout = 0;  //counter that is used to check the thermistor has been over the set max point.
 
+uint16_t temp_timeout = 0;  //counter that is used to check how long the thermistor has been over the set max point.
 void check_temperature_error(uint16_t adcThermistorVal)  //Function to check if the temperature is above the set max point.
 {
-
     if(adcThermistorVal > Fan_reg[TEMP_ALARM_LEVEL]){ //increments the counter by one if above the threshold
         ++temp_timeout;
         if(temp_timeout > 10)   //has to be above threshold for a few loops to protect against erroneous measurements. 
         {
             Fan_reg[ERROR_BYTE] |= (1 << ERR_TEMP_bp);  //sets the error bit in the error byte register.
+            //The error bit can be reset over the I2C line.
         }
     }
     else

@@ -19,9 +19,9 @@
 #include <util/delay.h>
 #include <avr/io.h>
 #include <stdio.h>  //library neccesary for printf
-#include <stdlib.h>
+#include <stdlib.h> //library neccesary for dtostrf conversion function
    
-        //defines all used functions.
+//define all used functions.
 void USART3_sendChar(char c);
 void USART3_init(void);
 int USART3_printChar(char c, FILE *stream);
@@ -37,7 +37,7 @@ void check_temperature_error(uint16_t adcThermistorVal);  //Function to check if
 
 
 
-#define USART3_BAUD_RATE(BAUD_RATE)((float)(F_CPU * 64 / (16 *(float)BAUD_RATE)) + 0.5)	//lager baudraten til UART overføring 
+#define USART3_BAUD_RATE(BAUD_RATE)((float)(F_CPU * 64 / (16 *(float)BAUD_RATE)) + 0.5)	//calculates the baudrate used for USART transmision  
 static FILE USART_stream = FDEV_SETUP_STREAM(USART3_printChar, NULL, _FDEV_SETUP_WRITE); 
 #define Voltage_ref_sel 2.048f //internal 2,048 volt reference for ADC. "f" for float
 
