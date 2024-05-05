@@ -36,8 +36,8 @@
         <targetPluginBoard></targetPluginBoard>
         <platformTool>nEdbgTool</platformTool>
         <languageToolchain>AVR</languageToolchain>
-        <languageToolchainVersion>5.4.0</languageToolchainVersion>
-        <platform>3</platform>
+        <languageToolchainVersion>1.00</languageToolchainVersion>
+        <platform>2</platform>
       </toolsSet>
       <packs>
         <pack name="AVR-Dx_DFP" vendor="Microchip" version="2.4.286"/>

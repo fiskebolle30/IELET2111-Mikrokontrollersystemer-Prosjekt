@@ -40,14 +40,15 @@
 #define ERROR_BYTE 10 //The different errors defined by the bits in the byte are defined below.
 #define CLEAR_ERROR 11 //Writing to this byte will clear the written bits in ERROR_BYTE.
 
-#define TEMP_ALARM_LEVEL 12  //thermistor ADC value that triggers error.
-#define FAN_TIMEOUT 13
+#define TEMP_ALARM_LEVEL_H 12  //thermistor ADC value that triggers error.
+#define TEMP_ALARM_LEVEL_L 13
+#define FAN_TIMEOUT 14
 
-#define MEASUREMENT_PERIOD_H 14 //How long the fan counter can count per measurement.
-#define MEASUREMENT_PERIOD_L 15
+#define MEASUREMENT_PERIOD_H 15 //How long the fan counter can count per measurement.
+#define MEASUREMENT_PERIOD_L 16
 //Remember to extend FAN_REG_LENGTH!!!!! (max value + 1)
 
-#define FAN_REG_LENGTH 16
+#define FAN_REG_LENGTH 17
 
 volatile uint8_t Fan_reg[FAN_REG_LENGTH]; //Register bank, writable and readable by both I2C and this code. Volatile since it will be used in interrupts.
 

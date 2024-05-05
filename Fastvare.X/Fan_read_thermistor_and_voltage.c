@@ -161,7 +161,8 @@ void Draw_to_terminal(uint16_t adcValue, char Str[]){
 uint16_t temp_timeout = 0;  //counter that is used to check how long the thermistor has been over the set max point.
 void check_temperature_error(uint16_t adcThermistorVal)  //Function to check if the temperature is above the set max point.
 {
-    if(adcThermistorVal > Fan_reg[TEMP_ALARM_LEVEL]){ //increments the counter by one if above the threshold
+    uint16_t temperature_threshold = (Fan_reg[TEMP_ALARM_LEVEL_H] << 8) | Fan_reg[TEMP_ALARM_LEVEL_L];
+    if(adcThermistorVal > temperature_threshold){ //increments the counter by one if above the threshold
         ++temp_timeout;
         if(temp_timeout > 10)   //has to be above threshold for a few loops to protect against erroneous measurements. 
         {
