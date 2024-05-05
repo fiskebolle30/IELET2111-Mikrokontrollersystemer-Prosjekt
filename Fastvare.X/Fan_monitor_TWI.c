@@ -8,7 +8,7 @@ void TWI0_client_init ( void )
     Fan_reg[MEASUREMENT_PERIOD_H] = 0x04; //T_meas = (this value)*prescaler(1024)/F_CPU(4,000,000).
     Fan_reg[MEASUREMENT_PERIOD_L] = 0x00; //This default value of 0x0400 gives a period of approx. 0.25 seconds.
     Fan_reg[FAN_TIMEOUT] = 10; //How many measurement periods of stopped fan before the error triggers. default approx. 2.5s
-    Fan_reg[TEMP_ALARM_LEVEL_H] = (1825 >> 8) & 0xFF; //ADC reading threshold for triggering overtemp alaram. Default value of 1825 translates to 30 deg. Celsius.
+    Fan_reg[TEMP_ALARM_LEVEL_H] = (1825 >> 8) & 0xFF; //ADC reading threshold for triggering overtemp alaram. Default value of 1825 translates to 30 d. Celsius.
     Fan_reg[TEMP_ALARM_LEVEL_L] = (1825 & 0xFF);
     
     // Pin configuration

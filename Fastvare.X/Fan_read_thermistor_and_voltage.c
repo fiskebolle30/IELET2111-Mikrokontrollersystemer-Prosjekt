@@ -162,7 +162,7 @@ uint16_t temp_timeout = 0;  //counter that is used to check how long the thermis
 void check_temperature_error(uint16_t adcThermistorVal)  //Function to check if the temperature is above the set max point.
 {
     uint16_t temperature_threshold = (Fan_reg[TEMP_ALARM_LEVEL_H] << 8) | Fan_reg[TEMP_ALARM_LEVEL_L];
-    if(adcThermistorVal > temperature_threshold){ //increments the counter by one if above the threshold
+    if(adcThermistorVal < temperature_threshold){ //increments the counter by one if below the threshold, which means the temperature is above the limit.
         ++temp_timeout;
         if(temp_timeout > 10)   //has to be above threshold for a few loops to protect against erroneous measurements. 
         {

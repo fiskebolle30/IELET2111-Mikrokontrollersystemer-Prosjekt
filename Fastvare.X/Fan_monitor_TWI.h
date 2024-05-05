@@ -19,7 +19,7 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 
-#define FAN_TWI_CLIENT_ADDRESS 58
+#define FAN_TWI_CLIENT_ADDRESS 58 //The I2C client has the address 58.
 
 
 /* Defines for what the different bytes in the Fan_reg array represent: */
@@ -50,7 +50,7 @@
 
 #define FAN_REG_LENGTH 17
 
-volatile uint8_t Fan_reg[FAN_REG_LENGTH]; //Register bank, writable and readable by both I2C and this code. Volatile since it will be used in interrupts.
+volatile uint8_t Fan_reg[FAN_REG_LENGTH]; //Register bank, writable and readable by both I2C and this code. Volatile since it will be used in both interrupts and main.
 
 
 /* Error byte bit positions: */
