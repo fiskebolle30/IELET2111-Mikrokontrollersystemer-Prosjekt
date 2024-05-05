@@ -47,7 +47,7 @@ float find_temp(uint16_t adcVal){
 	const float K0 = 273.15;    //0 degrees kelvin
 	float meas_volt;
 	float meas_resistance;		
-	const float vcc = 3.3;
+	const float vcc = 5.0;      
 
 	meas_volt = adcVal*(vcc/4095);	//calculates voltage by dividing by amount of samples with 12-bit ADC
     

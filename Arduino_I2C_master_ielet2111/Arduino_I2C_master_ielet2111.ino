@@ -62,10 +62,10 @@ void loop() {
   
 
 /*  Wire.beginTransmission(58);
-  Wire.write(CLEAR_ERROR);
-  Wire.write(0b00000010); //test-clear fan 1.*/
+  Wire.write(CLEAR_ERROR);  //what register byte to write to
+  Wire.write(0b00000010);   //write data to that register
+  Wire.endTransmission();   //test-clear fan 1.*/
   
-  Wire.endTransmission();
   Serial.print(", errors: ");
   Serial.print(error);
   Serial.print(", current temp ADC reading: ");
