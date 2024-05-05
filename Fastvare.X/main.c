@@ -43,6 +43,7 @@ int main(void)
         
         
         uint16_t adcValThermistor = adc_thermistor_read();
+        check_temperature_error(adcValThermistor);
         Draw_to_terminal(adcValThermistor, "Thermistor");
         float thermistorTemp = find_temp(adcValThermistor);
         char thermistorTempStr[10];
@@ -51,6 +52,7 @@ int main(void)
       
         
         printf("\n");
+        
         
         cli(); //Clear interrupts, so none of the registers are read in the middle of being written.
         Fan_reg[CURR_TEMP_H] = (adcValThermistor >> 8) & 0xFF; //Write the high byte of adcValThermistor.
