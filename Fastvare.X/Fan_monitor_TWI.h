@@ -23,7 +23,6 @@
 
 
 /* Defines for what the different bytes in the Fan_reg array represent: */
-
 #define CURR_TEMP_H 0
 #define CURR_TEMP_L 1
         
@@ -46,7 +45,6 @@
 
 #define MEASUREMENT_PERIOD_H 15 //How long the fan counter can count per measurement.
 #define MEASUREMENT_PERIOD_L 16 //T_meas = (this value)*prescaler(=1024)/F_CPU(=4,000,000).
-//Remember to extend FAN_REG_LENGTH!!!!! (max value + 1)
 
 #define FAN_REG_LENGTH 17
 
@@ -55,11 +53,11 @@ volatile uint8_t Fan_reg[FAN_REG_LENGTH]; //Register bank, writable and readable
 
 /* Error byte bit positions: */
 
-#define ERR_FAN0_bp 0 //Fan stopped
-#define ERR_FAN1_bp 1
-#define ERR_TEMP_bp 2
+#define ERR_FAN0_bp 0 //Fan0 stopped error
+#define ERR_FAN1_bp 1 //Fan1 stopped error
+#define ERR_TEMP_bp 2 //Over temperature error
 #define ERR_CNT_OVF_bp 3 //Fan counter overflowed
-#define ERR_BOTH_FANS_bp 4 //Both fans stopped
+#define ERR_BOTH_FANS_bp 4 //Both fans stopped error
 #define ERR_DEBUG_bp 7 //Just a general debug GPIO
 
 
@@ -72,4 +70,3 @@ void TWI0_client_init (void);
 #endif
 
 #endif	/* FAN_MONITOR_TWI_H */
-

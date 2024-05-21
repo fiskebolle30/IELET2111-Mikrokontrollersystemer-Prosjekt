@@ -1,10 +1,10 @@
 #include "Fan_monitor_TWI.h"
 
-uint8_t Fan_reg_pointer; //Pointer-ish (really offset) for the fan register array.
+uint8_t Fan_reg_pointer; //Pointer for indexing the fan register array. 
 
 void TWI0_client_init ( void )
 {
-    //Load previous settings from EEPROM? No time to implement, load default values instead:
+    //Load default values:
     Fan_reg[MEASUREMENT_PERIOD_H] = 0x03; //T_meas = (this value)*prescaler(1024)/F_CPU(4,000,000).
     Fan_reg[MEASUREMENT_PERIOD_L] = 0xD0; //This default value of 0x03D0 gives a period of 0.25 seconds.
     Fan_reg[FAN_TIMEOUT] = 10; //How many measurement periods of stopped fan before the error triggers. default approx. 2.5s
@@ -58,7 +58,7 @@ inline void handle_write() //Transfer data from host
         ++Fan_reg_pointer; //Increment pointer to next byte.
     }
     
-    if(Fan_reg_pointer > FAN_REG_LENGTH) //If the pointer has "overflowed":
+    if(Fan_reg_pointer > FAN_REG_LENGTH) //If the pointer has reached a value outside of the array:
     {
         TWI0.SCTRLB = TWI_ACKACT_NACK_gc | TWI_SCMD_RESPONSE_gc;
     }

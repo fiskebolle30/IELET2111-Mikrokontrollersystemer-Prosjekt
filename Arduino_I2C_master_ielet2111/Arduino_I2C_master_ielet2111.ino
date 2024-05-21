@@ -1,4 +1,3 @@
-
 /* Defines for what the different bytes in the Fan_reg array represent: */
 
 #define CURR_TEMP_H 0

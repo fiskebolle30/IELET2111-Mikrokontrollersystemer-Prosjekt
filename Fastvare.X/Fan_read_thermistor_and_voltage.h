@@ -42,14 +42,6 @@ static FILE USART_stream = FDEV_SETUP_STREAM(USART3_printChar, NULL, _FDEV_SETUP
 #define Voltage_ref_sel 2.048f //internal 2,048 volt reference for ADC. "f" for float
 
         
-
-    
-    
-    
-    
-    
-    
-    //----------------------------
 #ifdef	__cplusplus
 }
 #endif

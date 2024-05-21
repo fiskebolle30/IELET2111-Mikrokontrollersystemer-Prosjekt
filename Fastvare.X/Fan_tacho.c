@@ -58,7 +58,7 @@ void tacho_init()
     sei(); //Set global interrupts.
 }
 uint16_t fan0_timeout = 0; //Counters to check if the fans have been stopped over time.
-uint16_t fan1_timeout = 0;
+uint16_t fan1_timeout = 0; 
 
 inline void check_fan_errors() //Function to check if the fans are stopped.
 {
