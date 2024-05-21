@@ -5,8 +5,8 @@ uint8_t Fan_reg_pointer; //Pointer-ish (really offset) for the fan register arra
 void TWI0_client_init ( void )
 {
     //Load previous settings from EEPROM? No time to implement, load default values instead:
-    Fan_reg[MEASUREMENT_PERIOD_H] = 0x04; //T_meas = (this value)*prescaler(1024)/F_CPU(4,000,000).
-    Fan_reg[MEASUREMENT_PERIOD_L] = 0x00; //This default value of 0x0400 gives a period of approx. 0.25 seconds.
+    Fan_reg[MEASUREMENT_PERIOD_H] = 0x03; //T_meas = (this value)*prescaler(1024)/F_CPU(4,000,000).
+    Fan_reg[MEASUREMENT_PERIOD_L] = 0xD0; //This default value of 0x03D0 gives a period of 0.25 seconds.
     Fan_reg[FAN_TIMEOUT] = 10; //How many measurement periods of stopped fan before the error triggers. default approx. 2.5s
     Fan_reg[TEMP_ALARM_LEVEL_H] = (1825 >> 8) & 0xFF; //ADC reading threshold for triggering overtemp alaram. Default value of 1825 translates to 30 d. Celsius.
     Fan_reg[TEMP_ALARM_LEVEL_L] = (1825 & 0xFF);
@@ -55,7 +55,7 @@ inline void handle_write() //Transfer data from host
                 break;
             }
         }
-        ++Fan_reg_pointer;
+        ++Fan_reg_pointer; //Increment pointer to next byte.
     }
     
     if(Fan_reg_pointer > FAN_REG_LENGTH) //If the pointer has "overflowed":

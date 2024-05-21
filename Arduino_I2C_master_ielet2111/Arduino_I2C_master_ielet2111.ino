@@ -17,14 +17,15 @@
 #define ERROR_BYTE 10 //The different errors defined by the bits in the byte are defined below.
 #define CLEAR_ERROR 11 //Writing to this byte will clear the written bits in ERROR_BYTE.
 
-#define TEMP_ALARM_LEVEL 12  //thermistor ADC value that triggers error.
-#define FAN_TIMEOUT 13
+#define TEMP_ALARM_LEVEL_H 12  //thermistor ADC value that triggers error.
+#define TEMP_ALARM_LEVEL_L 13
+#define FAN_TIMEOUT 14
 
-#define MEASUREMENT_PERIOD_H 14 //How long the fan counter can count per measurement.
-#define MEASUREMENT_PERIOD_L 15
+#define MEASUREMENT_PERIOD_H 15 //How long the fan counter can count per measurement.
+#define MEASUREMENT_PERIOD_L 16
 //Remember to extend FAN_REG_LENGTH!!!!! (max value + 1)
 
-#define FAN_REG_LENGTH 16
+#define FAN_REG_LENGTH 17
 
 #include <Wire.h>
 
@@ -39,7 +40,17 @@ void readFromFanReg(uint8_t pos, int amount)
 
 void setup() {
   Wire.begin();
-  Serial.begin(9600); //Remember to test setting measurement period!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  Serial.begin(9600); //
+  Wire.beginTransmission(58);
+  Wire.write(MEASUREMENT_PERIOD_H); 
+  Wire.write(0x10);
+  Wire.write(0x00); //Low byte is just 0. Written to trigger the update
+  Wire.endTransmission();
+
+  Wire.beginTransmission(58);
+  Wire.write(FAN_TIMEOUT);
+  Wire.write(3); 
+  Wire.endTransmission();
 }
 
 void loop() {

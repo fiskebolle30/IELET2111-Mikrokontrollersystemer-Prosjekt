@@ -33,7 +33,7 @@
 #define CURR_EXT_VOLTAGE_L 5
 
 #define CURR_FAN_0_SPEED_H 6 //Dependent on the measurement/logging period.
-#define CURR_FAN_0_SPEED_L 7
+#define CURR_FAN_0_SPEED_L 7 //RPM = 60*(this value)/measurement period.
 #define CURR_FAN_1_SPEED_H 8
 #define CURR_FAN_1_SPEED_L 9
 
@@ -42,10 +42,10 @@
 
 #define TEMP_ALARM_LEVEL_H 12  //thermistor ADC value that triggers error.
 #define TEMP_ALARM_LEVEL_L 13
-#define FAN_TIMEOUT 14
+#define FAN_TIMEOUT 14 //How many measurement periods the fans need to be stopped to trigger the error.
 
 #define MEASUREMENT_PERIOD_H 15 //How long the fan counter can count per measurement.
-#define MEASUREMENT_PERIOD_L 16
+#define MEASUREMENT_PERIOD_L 16 //T_meas = (this value)*prescaler(=1024)/F_CPU(=4,000,000).
 //Remember to extend FAN_REG_LENGTH!!!!! (max value + 1)
 
 #define FAN_REG_LENGTH 17
